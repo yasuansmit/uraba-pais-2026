@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Registro de Atenciones y Ayudas</h3>
+        <p class="text-muted mb-0">Registra lo que se entregó o realizó. El seguimiento se registra en otro módulo.</p>
+    </div>
+    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalAtencionGeneral"><i class="bi bi-plus-lg me-1"></i>  Nueva Atención</button>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Beneficiario</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Descripción</th>
+                    <th>Responsable</th>
+                    <th>Resultado</th>
+                    {% if es_admin %}<th class="text-end pe-4">Acciones</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in atenciones %}
+                <tr>
+                    <td class="ps-4">
+                        <strong class="text-primary">{{ a['beneficiario_nombre'] }}</strong>
+                        <br><small class="text-muted">Cód: {{ a['codigo_interno'] }}</small>
+                    </td>
+                    <td class="fw-semibold text-dark">{{ a['tipo'] }}</td>
+                    <td>{{ a['fecha'] }}</td>
+                    <td>{{ a['descripcion'] }}</td>
+                    <td>{{ a['responsable'] }}</td>
+                    <td>{{ a['remision'] or 'Sin resultado' }}</td>
+                    {% if es_admin %}
+                    <td class="text-end pe-4">
+                        <form action="{{ url_for('eliminar_atencion', id=a['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar esta atención?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Eliminar atención">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if es_admin %}7{% else %}6{% endif %}" class="text-center py-5 text-muted">No se registran atenciones prestadas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAtencionGeneral" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('crear_atencion_general') }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header"><h5 class="modal-title fw-bold">Registrar Nueva Atención o Ayuda</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Beneficiario</label>
+                    <select name="beneficiario_id" class="form-select" required>
+                        {% for b in beneficiarios %}
+                        <option value="{{ b['id'] }}">{{ b['nombres'] }} {{ b['apellidos'] }} ({{ b['num_doc'] }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tipo de Atención</label>
+                    <select name="tipo" id="selectTipoAtencionGen" class="form-select" onchange="toggleOtroTipoAtencionGen(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona un tipo de atención --</option>
+                        <option value="Asesoría Jurídica">Asesoría Jurídica</option>
+                        <option value="Apoyo Psicosocial">Apoyo Psicosocial</option>
+                        <option value="Ayuda Humanitaria">Ayuda Humanitaria</option>
+                        <option value="Atención Médica / Salud">Atención Médica / Salud</option>
+                        <option value="Capacitación / Taller">Capacitación / Taller</option>
+                        <option value="Orientación Vocacional / Empleo">Orientación Vocacional / Empleo</option>
+                        <option value="Entrega de Subsidio o Insumo">Entrega de Subsidio o Insumo</option>
+                        <option value="Revision">Revisión o Verificación</option>
+                        <option value="__otro__">+ Otro (Escribir personalizado...)</option>
+                    </select>
+                    <input type="text" id="inputOtroTipoAtencionGen" class="form-control mt-2 d-none" placeholder="Escribe el tipo de atención">
+                </div>
+                <div class="mb-3"><label class="form-label fw-semibold">Fecha</label><input type="date" name="fecha" class="form-control" required></div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Funcionario Responsable</label>
+                    <input type="text" name="responsable" class="form-control bg-light" value="{{ usuario_actual or 'Funcionario Urabá' }}" required>
+                    <small class="text-muted fs-8">Registrado automáticamente con la sesión activa</small>
+                </div>
+                <div class="mb-3"><label class="form-label fw-semibold">Descripción del Hecho</label><textarea name="descripcion" class="form-control" rows="3" required></textarea></div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Resultado de la Atención</label>
+                    <select name="resultado" id="selectResultadoGen" class="form-select" onchange="toggleOtroResultadoGen(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona un resultado --</option>
+                        <option value="Entregado">Entregado</option>
+                        <option value="Orientado">Orientado</option>
+                        <option value="Remitido">Remitido</option>
+                        <option value="En trámite">En trámite</option>
+                        <option value="Atendido exitosamente">Atendido exitosamente</option>
+                        <option value="Requiere seguimiento">Requiere seguimiento</option>
+                        <option value="No asistió">No asistió</option>
+                        <option value="__otro__">+ Otro (Escribir personalizado...)</option>
+                    </select>
+                    <input type="text" id="inputOtroResultadoGen" class="form-control mt-2 d-none" placeholder="Escribe el resultado de la atención">
+                </div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Guardar Atención</button></div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleOtroTipoAtencionGen(val) {
+        const inp = document.getElementById('inputOtroTipoAtencionGen');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    function toggleOtroResultadoGen(val) {
+        const inp = document.getElementById('inputOtroResultadoGen');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector('#modalAtencionGeneral form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const selTipo = document.getElementById('selectTipoAtencionGen');
+                const inpTipo = document.getElementById('inputOtroTipoAtencionGen');
+                if (selTipo && selTipo.value === '__otro__' && inpTipo && inpTipo.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpTipo.value.trim();
+                    opt.text = inpTipo.value.trim();
+                    selTipo.appendChild(opt);
+                    selTipo.value = inpTipo.value.trim();
+                }
+
+                const selRes = document.getElementById('selectResultadoGen');
+                const inpRes = document.getElementById('inputOtroResultadoGen');
+                if (selRes && selRes.value === '__otro__' && inpRes && inpRes.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpRes.value.trim();
+                    opt.text = inpRes.value.trim();
+                    selRes.appendChild(opt);
+                    selRes.value = inpRes.value.trim();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Asistente Virtual{% endblock %}
+{% block page_title %}Asistente Virtual Operativo{% endblock %}
+{% block page_subtitle %}Consultas inteligentes de expedientes, indicadores y asistencia en territorio.{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="card border-0 shadow-sm bg-body">
+            <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bg-primary text-white rounded p-2">
+                        <i class="bi bi-robot fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Consultor Operativo URABÁ-PAÍS</h6>
+                        <small class="text-muted">Orientación y resumen de información registrada</small>
+                    </div>
+                </div>
+                <span class="badge bg-info-subtle text-info border">Modo Asistido Activo</span>
+            </div>
+
+            <div class="card-body p-4" id="chatBox" style="height: 380px; overflow-y: auto;">
+                <div class="d-flex gap-3 mb-3">
+                    <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; flex-shrink: 0;">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="bg-body-tertiary p-3 rounded-3 border small max-w-75">
+                        Hola, {{ session.get('usuario_nombre', 'Usuario') }}. Puedo ayudarte a resumir el historial de un beneficiario, consultar la distribución por municipio o verificar atenciones entregadas. ¿Qué información deseas consultar?
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-transparent border-top p-3">
+                <div class="input-group">
+                    <input type="text" id="userInput" class="form-control" placeholder="Escribe tu consulta (Ej: Resumen UP-123456 o Atenciones entregadas)...">
+                    <button class="btn btn-primary px-4 fw-semibold" id="btnEnviar">
+                        Consultar <i class="bi bi-send-fill ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+    const btnEnviar = document.getElementById('btnEnviar');
+
+    function enviarConsulta() {
+        const texto = userInput.value.trim();
+        if (!texto) return;
+
+        chatBox.innerHTML += `
+            <div class="d-flex gap-3 mb-3 justify-content-end">
+                <div class="bg-primary text-white p-3 rounded-3 small max-w-75">${texto}</div>
+            </div>
+        `;
+
+        userInput.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        fetch('/api/asistente/consultar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pregunta: texto })
+        })
+        .then(res => res.json())
+        .then(data => {
+            chatBox.innerHTML += `
+                <div class="d-flex gap-3 mb-3">
+                    <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; flex-shrink: 0;"><i class="bi bi-robot"></i></div>
+                    <div class="bg-body-tertiary p-3 rounded-3 border small max-w-75">${data.respuesta}</div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    }
+
+    btnEnviar.addEventListener('click', enviarConsulta);
+    userInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') enviarConsulta(); });
+</script>
+{% endblock %}

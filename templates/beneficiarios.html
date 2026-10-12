@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Directorio de Beneficiarios</h3>
+        <p class="text-muted fs-7 mb-0">Gestión consolidada de registros e historial de atención integral</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('buscar_previo') }}" class="btn btn-outline-secondary bg-white rounded-3 fs-7">
+            <i class="bi bi-shield-check me-1"></i> Validar Documento
+        </a>
+        <a href="{{ url_for('crear_beneficiario') }}" class="btn btn-primary rounded-3 fs-7">
+            <i class="bi bi-person-plus-fill me-1"></i> + Nuevo Beneficiario
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 p-3 mb-4 bg-white">
+    <form method="GET" action="{{ url_for('listar_beneficiarios') }}" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ q }}" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por documento, nombre, apellido o código...">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select name="municipio" class="form-select bg-light border-0 rounded-3 fs-7">
+                <option value="">-- Todos los municipios --</option>
+                {% for m in municipios %}
+                    <option value="{{ m['municipio'] }}" {% if municipio_filtro == m['municipio'] %}selected{% endif %}>
+                        {{ m['municipio'] }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100 rounded-3 fw-semibold fs-7">
+                <i class="bi bi-funnel me-1"></i> Filtrar
+            </button>
+            {% if q or municipio_filtro %}
+                <a href="{{ url_for('listar_beneficiarios') }}" class="btn btn-outline-secondary bg-white rounded-3" title="Limpiar filtros">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="card border-0 bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Código</th>
+                    <th>Documento</th>
+                    <th>Nombres y Apellidos</th>
+                    <th>Municipio</th>
+                    <th>Teléfono</th>
+                    <th class="text-end pe-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in beneficiarios %}
+                <tr>
+                    <td class="ps-4">
+                        <span class="badge font-monospace px-2 py-1 rounded-2" style="background: rgba(4, 120, 87, 0.08); color: #047857; border: 1px solid rgba(4, 120, 87, 0.2);">
+                            {{ b['codigo_interno'] }}
+                        </span>
+                    </td>
+                    <td>
+                        <small class="text-muted d-block fs-8">{{ b['tipo_doc'] }}</small>
+                        <strong class="text-dark">{{ b['num_doc'] }}</strong>
+                    </td>
+                    <td>
+                        <span class="fw-semibold text-dark">{{ b['nombres'] }} {{ b['apellidos'] }}</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill fs-8">
+                            <i class="bi bi-geo-alt me-1"></i>{{ b['municipio'] or 'No especificado' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="text-muted fs-7">{{ b['telefono'] or 'Sin registro' }}</span>
+                    </td>
+                    <td class="text-end pe-4">
+                        <div class="d-inline-flex gap-1 align-items-center">
+                            <a href="{{ url_for('ficha_beneficiario', id=b['id']) }}" class="btn btn-sm btn-outline-primary rounded-3 px-3 fs-7" title="Abrir Ficha 360°">
+                                <i class="bi bi-person-vcard me-1"></i> Ficha 360°
+                            </a>
+                            {% if es_admin %}
+                            <a href="{{ url_for('editar_beneficiario', id=b['id']) }}" class="btn btn-sm btn-outline-secondary rounded-3" title="Editar Beneficiario">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <form action="{{ url_for('eliminar_beneficiario', id=b['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Eliminar">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">No se encontraron beneficiarios registrados con los criterios seleccionados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_paginas > 1 %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+        <span class="text-muted fs-7">Mostrando página {{ pagina }} de {{ total_paginas }} (Total: {{ total }} beneficiarios)</span>
+        <nav aria-label="Paginación de beneficiarios">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+                    <a class="page-link rounded-start-3" href="{{ url_for('listar_beneficiarios', pagina=pagina-1, q=q, municipio=municipio_filtro) }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% for p in range(1, total_paginas + 1) %}
+                    {% if p == pagina %}
+                        <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                    {% elif p >= pagina - 2 and p <= pagina + 2 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('listar_beneficiarios', pagina=p, q=q, municipio=municipio_filtro) }}">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+                    <a class="page-link rounded-end-3" href="{{ url_for('listar_beneficiarios', pagina=pagina+1, q=q, municipio=municipio_filtro) }}">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

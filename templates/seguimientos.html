@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Módulo de Seguimientos</h3>
+        <p class="text-muted mb-0">Monitoreo continuo y compromisos de casos</p>
+    </div>
+    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalSeguimientoGeneral"><i class="bi bi-plus-lg me-1"></i>  Nuevo Seguimiento</button>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Beneficiario</th>
+                    <th>Fecha Registro</th>
+                    <th>Avance del Caso</th>
+                    <th>Próxima Acción</th>
+                    <th>Estado</th>
+                    {% if es_admin %}<th class="text-end pe-4">Acciones</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in seguimientos %}
+                <tr>
+                    <td class="ps-4">
+                        <strong class="text-primary">{{ s['beneficiario_nombre'] }}</strong>
+                        <br><small class="text-muted">Cód: {{ s['codigo_interno'] }}</small>
+                    </td>
+                    <td>{{ s['fecha'] }}</td>
+                    <td>{{ s['avance'] }}</td>
+                    <td>{{ s['proxima_accion'] }} <br><small class="text-secondary">Contacto: {{ s['fecha_proximo_contacto'] or 'N/A' }}</small></td>
+                    <td><span class="badge bg-warning-subtle text-warning border">{{ s['estado_accion'] }}</span></td>
+                    {% if es_admin %}
+                    <td class="text-end pe-4">
+                        <form action="{{ url_for('eliminar_seguimiento', id=s['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar este seguimiento?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Eliminar seguimiento">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if es_admin %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No existen compromisos de seguimiento registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Seguimiento General -->
+<div class="modal fade" id="modalSeguimientoGeneral" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('crear_seguimiento_general') }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header"><h5 class="modal-title fw-bold">Nuevo Seguimiento de Caso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Beneficiario</label>
+                    <select name="beneficiario_id" class="form-select" required>
+                        {% for b in beneficiarios %}
+                        <option value="{{ b['id'] }}">{{ b['nombres'] }} {{ b['apellidos'] }} ({{ b['num_doc'] }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3"><label class="form-label fw-semibold">Fecha</label><input type="date" name="fecha" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label fw-semibold">Avance Observado</label><textarea name="avance" class="form-control" rows="3" required></textarea></div>
+                <div class="mb-3"><label class="form-label fw-semibold">Próxima Acción Programada</label><input type="text" name="proxima_accion" class="form-control"></div>
+                <div class="mb-3"><label class="form-label fw-semibold">Fecha de Próximo Contacto</label><input type="date" name="fecha_proximo_contacto" class="form-control"></div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Guardar Seguimiento</button></div>
+        </form>
+    </div>
+</div>
+{% endblock %}

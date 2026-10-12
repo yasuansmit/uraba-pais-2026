@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Módulo de Programas</h3>
+        <p class="text-muted mb-0">Gestión de inscripciones y oferta institucional</p>
+    </div>
+    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalProgramaGeneral"><i class="bi bi-plus-lg me-1"></i>  Vincular a Programa</button>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Beneficiario</th>
+                    <th>Programa Social</th>
+                    <th>Línea de Trabajo</th>
+                    <th>Fecha Vinculación</th>
+                    <th>Estado</th>
+                    {% if es_admin %}<th class="text-end pe-4">Acciones</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in participaciones %}
+                <tr>
+                    <td class="ps-4">
+                        <strong class="text-primary">{{ p['beneficiario_nombre'] }}</strong>
+                        <br><small class="text-muted">Cód: {{ p['codigo_interno'] }}</small>
+                    </td>
+                    <td class="fw-semibold text-dark">{{ p['programa_nombre'] }}</td>
+                    <td>{{ p['linea_trabajo'] or 'General' }}</td>
+                    <td>{{ p['fecha_vinculacion'] }}</td>
+                    <td><span class="badge bg-success-subtle text-success border">{{ p['estado'] }}</span></td>
+                    {% if es_admin %}
+                    <td class="text-end pe-4">
+                        <form action="{{ url_for('eliminar_participacion', id=p['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar esta vinculación?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Eliminar vinculación">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if es_admin %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No hay beneficiarios vinculados a programas aún.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Vincular General -->
+<div class="modal fade" id="modalProgramaGeneral" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('crear_programa_general') }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header"><h5 class="modal-title fw-bold">Nueva Vinculación a Programa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Seleccionar Beneficiario</label>
+                    <select name="beneficiario_id" class="form-select" required>
+                        {% for b in beneficiarios %}
+                        <option value="{{ b['id'] }}">{{ b['nombres'] }} {{ b['apellidos'] }} ({{ b['num_doc'] }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nombre del Programa</label>
+                    <select name="programa_nombre" id="selectProgramaGen" class="form-select" onchange="toggleOtroProgramaGen(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona un programa --</option>
+                        <option value="Emprendimiento Urabá">Emprendimiento Urabá</option>
+                        <option value="Formación Juvenil">Formación Juvenil</option>
+                        <option value="Atención Psicosocial Comunitaria">Atención Psicosocial Comunitaria</option>
+                        <option value="Seguridad Alimentaria y Nutrición">Seguridad Alimentaria y Nutrición</option>
+                        <option value="Desarrollo Agropecuario Sostenible">Desarrollo Agropecuario Sostenible</option>
+                        <option value="Educación y Liderazgo Comunitario">Educación y Liderazgo Comunitario</option>
+                        <option value="Inclusión y Protección Social">Inclusión y Protección Social</option>
+                        <option value="__otro__">+ Otro (Escribir personalizado...)</option>
+                    </select>
+                    <input type="text" id="inputOtroProgramaGen" class="form-control mt-2 d-none" placeholder="Escribe el nombre del programa">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Línea de Trabajo</label>
+                    <select name="linea_trabajo" id="selectLineaGen" class="form-select" onchange="toggleOtraLineaGen(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona una línea de trabajo --</option>
+                        <option value="Capacitación y Formación">Capacitación y Formación</option>
+                        <option value="Capital Semilla">Capital Semilla</option>
+                        <option value="Asistencia Humanitaria">Asistencia Humanitaria</option>
+                        <option value="Salud y Bienestar">Salud y Bienestar</option>
+                        <option value="Integración Socioeconómica">Integración Socioeconómica</option>
+                        <option value="Fortalecimiento Organizativo">Fortalecimiento Organizativo</option>
+                        <option value="Infraestructura Social">Infraestructura Social</option>
+                        <option value="__otro__">+ Otra (Escribir personalizada...)</option>
+                    </select>
+                    <input type="text" id="inputOtraLineaGen" class="form-control mt-2 d-none" placeholder="Escribe la línea de trabajo">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Fecha Vinculación</label>
+                    <input type="date" name="fecha_vinculacion" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Estado de participación</label>
+                    <select name="estado" class="form-select" required>
+                        <option value="inscrito">Inscrito</option>
+                        <option value="en proceso">En proceso</option>
+                        <option value="finalizado">Finalizado</option>
+                        <option value="retirado">Retirado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Guardar Vinculación</button></div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleOtroProgramaGen(val) {
+        const inp = document.getElementById('inputOtroProgramaGen');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    function toggleOtraLineaGen(val) {
+        const inp = document.getElementById('inputOtraLineaGen');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector('#modalProgramaGeneral form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const selProg = document.getElementById('selectProgramaGen');
+                const inpProg = document.getElementById('inputOtroProgramaGen');
+                if (selProg && selProg.value === '__otro__' && inpProg && inpProg.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpProg.value.trim();
+                    opt.text = inpProg.value.trim();
+                    selProg.appendChild(opt);
+                    selProg.value = inpProg.value.trim();
+                }
+
+                const selLinea = document.getElementById('selectLineaGen');
+                const inpLinea = document.getElementById('inputOtraLineaGen');
+                if (selLinea && selLinea.value === '__otro__' && inpLinea && inpLinea.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpLinea.value.trim();
+                    opt.text = inpLinea.value.trim();
+                    selLinea.appendChild(opt);
+                    selLinea.value = inpLinea.value.trim();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

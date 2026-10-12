@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h4 class="fw-bold text-dark mb-3"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Validación Previa de Documento</h4>
+            <p class="text-muted fs-7 mb-4">Verifique en el sistema si el ciudadano ya cuenta con una ficha activa antes de realizar el registro.</p>
+            
+            <form action="{{ url_for('buscar_previo') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Tipo de Documento</label>
+                    <select name="tipo_doc" class="form-select rounded-3" required>
+                        <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
+                        <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                        <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                        <option value="PEP / Permiso de Protección Temporal">PEP / Permiso de Protección Temporal</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Número de Documento</label>
+                    <input type="text" name="num_doc" class="form-control rounded-3" placeholder="Ingrese el número sin puntos ni comas" required>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('listar_beneficiarios') }}" class="btn btn-light rounded-3">Cancelar</a>
+                    <button type="submit" class="btn btn-primary rounded-3"><i class="bi bi-search me-1"></i> Verificar Documento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

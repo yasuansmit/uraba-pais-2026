@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Gestión de Usuarios</h3>
+        <p class="text-muted mb-0">Administra los accesos al sistema</p>
+    </div>
+    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+        <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
+    </button>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">#</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th class="text-end pe-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr>
+                    <td class="ps-4"><span class="badge bg-light text-dark border">{{ u['id'] }}</span></td>
+                    <td class="fw-semibold">{{ u['nombre'] }}</td>
+                    <td class="text-muted">{{ u['correo'] }}</td>
+                    <td>
+                        <form action="{{ url_for('cambiar_rol_usuario', id=u['id']) }}" method="POST" class="d-inline">
+                            <select name="rol" class="form-select form-select-sm rounded-3" onchange="this.form.submit()" {% if u['id'] == session.get('usuario_id') %}disabled{% endif %}>
+                                <option value="funcionario" {% if u['rol'] == 'funcionario' %}selected{% endif %}>Funcionario</option>
+                                <option value="administrador" {% if u['rol'] == 'administrador' %}selected{% endif %}>Administrador</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td class="text-end pe-4">
+                        {% if u['id'] != session.get('usuario_id') %}
+                        <form action="{{ url_for('eliminar_usuario', id=u['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar al usuario ' + '{{ u["nombre"] }}' + '?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3"><i class="bi bi-trash-fill"></i></button>
+                        </form>
+                        {% else %}
+                        <span class="badge bg-primary-subtle text-primary border">Tú</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center py-5 text-muted">No hay usuarios registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Crear Usuario -->
+<div class="modal fade" id="modalCrearUsuario" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('crear_usuario') }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Crear Nuevo Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nombre completo</label>
+                    <input type="text" name="nombre" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Correo electrónico</label>
+                    <input type="email" name="correo" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Contraseña</label>
+                    <input type="password" name="password" class="form-control" minlength="4" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Rol</label>
+                    <select name="rol" class="form-select">
+                        <option value="funcionario">Funcionario</option>
+                        <option value="administrador">Administrador</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-3">Crear Usuario</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

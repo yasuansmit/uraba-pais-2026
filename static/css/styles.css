@@ -1,0 +1,129 @@
+:root {
+  --primary-blue: #0d6efd;
+  --sidebar-dark: #1e293b;
+  --bg-light: #f8fafc;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-light);
+  color: #334155;
+  margin: 0;
+}
+
+/* Dashboard Layout Sidebar */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: var(--sidebar-dark);
+  color: #ffffff;
+  padding: 1.5rem 1rem;
+  flex-shrink: 0;
+}
+
+.sidebar .brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 2rem;
+  padding-left: 0.5rem;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav .nav-link {
+  color: #94a3b8;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover,
+.sidebar-nav .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Botón Cápsula Unificado */
+.btn-principal-capsula {
+  background-color: var(--primary-blue) !important;
+  color: #ffffff !important;
+  border-radius: 50px !important;
+  border: none !important;
+  padding: 10px 24px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2) !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-principal-capsula:hover {
+  background-color: #0b5ed7 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3) !important;
+}
+
+/* Tarjetas KPI */
+.card-kpi {
+  border: none;
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  transition: transform 0.2s ease;
+}
+
+.card-kpi:hover {
+  transform: translateY(-3px);
+}
+
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* Formato impreso de certificado */
+@media print {
+  .sidebar, .btn-print, .nav-header {
+    display: none !important;
+  }
+  .main-content {
+    padding: 0 !important;
+  }
+  .cert-container {
+    border: 5px double #0d6efd !important;
+    box-shadow: none !important;
+  }
+}

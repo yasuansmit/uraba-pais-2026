@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Reportes y Métricas Ejecutivas</h3>
+        <p class="text-muted fs-7 mb-0">Consolidado general analítico (anonimizado conforme a Ley de Habeas Data)</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary bg-white rounded-3 fs-7">
+            <i class="bi bi-printer me-1"></i> Imprimir Reporte
+        </button>
+        {% if es_admin %}
+        <a href="{{ url_for('exportar_reportes') }}" class="btn btn-outline-primary bg-white rounded-3 fs-7" title="Descargar resumen de métricas">
+            <i class="bi bi-bar-chart me-1"></i> Resumen CSV
+        </a>
+        <a href="{{ url_for('exportar_beneficiarios_csv') }}" class="btn btn-primary rounded-3 fs-7" title="Descargar base de datos completa de beneficiarios">
+            <i class="bi bi-file-earmark-excel-fill me-1"></i> Matriz Completa (.csv)
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <span class="text-muted fs-7">Beneficiarios únicos</span>
+            <h2 class="fw-bold mb-0">{{ total_beneficiarios }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <span class="text-muted fs-7">Participaciones</span>
+            <h2 class="fw-bold mb-0">{{ total_participaciones }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <span class="text-muted fs-7">Atenciones / ayudas</span>
+            <h2 class="fw-bold mb-0">{{ total_atenciones }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <span class="text-muted fs-7">Seguimientos pendientes</span>
+            <h2 class="fw-bold mb-0">{{ seguimientos_pendientes }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h5 class="fw-bold mb-3">Participaciones por programa</h5>
+            {% if programas_resumen %}
+            <table class="table">
+                <thead><tr><th>Programa</th><th class="text-end">Cantidad</th></tr></thead>
+                <tbody>
+                    {% for p in programas_resumen %}
+                    <tr><td>{{ p['programa_nombre'] }}</td><td class="text-end">{{ p['cantidad'] }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted mb-0">Sin datos.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h5 class="fw-bold mb-3">Participaciones por estado</h5>
+            {% if estados_resumen %}
+            <table class="table">
+                <thead><tr><th>Estado</th><th class="text-end">Cantidad</th></tr></thead>
+                <tbody>
+                    {% for e in estados_resumen %}
+                    <tr><td class="text-capitalize">{{ e['estado'] }}</td><td class="text-end">{{ e['cantidad'] }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted mb-0">Sin datos.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+            <h5 class="fw-bold mb-3">Personas únicas por municipio</h5>
+            {% if municipios_resumen %}
+            <table class="table mb-0">
+                <thead><tr><th>Municipio</th><th class="text-end">Beneficiarios únicos</th></tr></thead>
+                <tbody>
+                    {% for m in municipios_resumen %}
+                    <tr><td>{{ m['municipio'] }}</td><td class="text-end">{{ m['cantidad'] }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted mb-0">Sin datos.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

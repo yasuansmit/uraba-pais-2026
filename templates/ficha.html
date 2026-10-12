@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-1">Ficha Integrada 360°</h3>
+        <p class="text-muted mb-0">Código de Referencia: <span class="badge bg-primary fs-7">{{ b['codigo_interno'] }}</span></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('imprimir_certificado', id=b['id']) }}" target="_blank" class="btn btn-outline-success rounded-3 fw-semibold">
+            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Certificado QR Oficial
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-dark rounded-3">
+            <i class="bi bi-printer-fill me-1"></i> Imprimir Ficha 360°
+        </button>
+        {% if es_admin %}
+        <a href="{{ url_for('editar_beneficiario', id=b['id']) }}" class="btn btn-primary rounded-3"><i class="bi bi-pencil-fill me-1"></i> Editar Datos</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Ficha Datos Personales -->
+<div class="card border-0 shadow-sm rounded-4 bg-white p-4 mb-4">
+    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-person-lines-fill me-2"></i>Información Personal</h5>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Nombre Completo</span>
+            <strong class="text-dark fs-6">{{ b['nombres'] }} {{ b['apellidos'] }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Documento Identidad</span>
+            <strong>{{ b['tipo_doc'] }}: {{ b['num_doc'] or 'Sin documento' }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Teléfono / Celular</span>
+            <strong>{{ b['telefono'] or 'Sin registro' }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Municipio</span>
+            <strong>{{ b['municipio'] or 'No registrado' }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Fecha Nacimiento</span>
+            <strong>{{ b['fecha_nacimiento'] or 'No registra' }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Sexo / Género</span>
+            <strong>{{ b['sexo'] or 'No registra' }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Condición Poblacional</span>
+            <strong>{{ b['condicion_poblacional'] or 'Ninguna' }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Discapacidad</span>
+            <strong>{{ b['discapacidad'] or 'Ninguna' }}</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Autorización de datos</span>
+            {% if b['habeas_data'] %}
+            <span class="badge bg-success-subtle text-success border">Autorizada</span>
+            {% else %}
+            <span class="badge bg-warning-subtle text-warning border">No registrada</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Pestañas de Navegación Ficha 360 -->
+<ul class="nav nav-pills mb-4 gap-2 bg-white p-2 rounded-4 shadow-sm border" id="fichaTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-resumen-btn" data-bs-toggle="tab" data-bs-target="#tab-resumen" type="button" role="tab">
+            <i class="bi bi-person-badge me-1"></i> Resumen Integral
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-programas-btn" data-bs-toggle="tab" data-bs-target="#tab-programas" type="button" role="tab">
+            <i class="bi bi-diagram-3 me-1"></i> Programas <span class="badge bg-success-subtle text-success ms-1">{{ participaciones|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-atenciones-btn" data-bs-toggle="tab" data-bs-target="#tab-atenciones" type="button" role="tab">
+            <i class="bi bi-heart-pulse me-1"></i> Atenciones <span class="badge bg-info-subtle text-info ms-1">{{ atenciones|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-seguimientos-btn" data-bs-toggle="tab" data-bs-target="#tab-seguimientos" type="button" role="tab">
+            <i class="bi bi-journal-check me-1"></i> Seguimientos <span class="badge bg-warning-subtle text-warning ms-1">{{ seguimientos|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-familia-btn" data-bs-toggle="tab" data-bs-target="#tab-familia" type="button" role="tab">
+            <i class="bi bi-people me-1"></i> Núcleo Familiar <span class="badge bg-secondary-subtle text-secondary ms-1">{{ familia|length }}</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Contenido de las Pestañas -->
+<div class="tab-content" id="fichaTabsContent">
+    <!-- Tab 1: Resumen Integral -->
+    <div class="tab-pane fade show active" id="tab-resumen" role="tabpanel">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 bg-white p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-dark mb-0"><i class="bi bi-diagram-3-fill text-success me-2"></i>Programas Activos</h6>
+                        <button class="btn btn-sm btn-outline-primary rounded-3 fs-8" data-bs-toggle="modal" data-bs-target="#modalPrograma">+ Vincular</button>
+                    </div>
+                    {% if participaciones %}
+                        <div class="list-group list-group-flush fs-7">
+                            {% for p in participaciones[:3] %}
+                            <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-dark">{{ p['programa_nombre'] }}</strong>
+                                    <small class="text-muted d-block">{{ p['linea_trabajo'] or 'General' }}</small>
+                                </div>
+                                <span class="badge bg-success-subtle text-success">{{ p['estado'] }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted fs-7 mb-0">Sin programas asociados.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card border-0 bg-white p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-dark mb-0"><i class="bi bi-heart-pulse-fill text-info me-2"></i>Últimas Atenciones</h6>
+                        <button class="btn btn-sm btn-outline-primary rounded-3 fs-8" data-bs-toggle="modal" data-bs-target="#modalAtencion">+ Registrar</button>
+                    </div>
+                    {% if atenciones %}
+                        <div class="list-group list-group-flush fs-7">
+                            {% for a in atenciones[:3] %}
+                            <div class="list-group-item px-0 py-2">
+                                <div class="d-flex justify-content-between">
+                                    <strong class="text-primary">{{ a['tipo'] }}</strong>
+                                    <small class="text-muted">{{ a['fecha'] }}</small>
+                                </div>
+                                <small class="text-secondary d-block">{{ a['descripcion'] }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted fs-7 mb-0">Sin atenciones registradas.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: Programas Vinculados -->
+    <div class="tab-pane fade" id="tab-programas" role="tabpanel">
+        <div class="card border-0 bg-white p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-diagram-3-fill text-success me-2"></i>Historial de Programas</h5>
+                <button class="btn btn-primary rounded-3 fs-7" data-bs-toggle="modal" data-bs-target="#modalPrograma">+ Vincular a Programa</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Programa</th><th>Línea de Trabajo</th><th>Fecha Vinculación</th><th>Estado</th>{% if es_admin %}<th class="text-end">Acciones</th>{% endif %}</tr></thead>
+                    <tbody>
+                        {% for prog in participaciones %}
+                        <tr>
+                            <td class="fw-semibold text-dark">{{ prog['programa_nombre'] }}</td>
+                            <td>{{ prog['linea_trabajo'] or 'General' }}</td>
+                            <td>{{ prog['fecha_vinculacion'] }}</td>
+                            <td><span class="badge bg-success-subtle text-success border">{{ prog['estado'] }}</span></td>
+                            {% if es_admin %}
+                            <td class="text-end">
+                                <form action="{{ url_for('eliminar_participacion', id=prog['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta vinculación?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3"><i class="bi bi-trash-fill"></i></button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center py-4 text-muted">Sin programas vinculados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 3: Atenciones y Ayudas -->
+    <div class="tab-pane fade" id="tab-atenciones" role="tabpanel">
+        <div class="card border-0 bg-white p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-heart-pulse-fill text-info me-2"></i>Atenciones y Asistencias Prestadas</h5>
+                <button class="btn btn-primary rounded-3 fs-7" data-bs-toggle="modal" data-bs-target="#modalAtencion">+ Registrar Atención</button>
+            </div>
+            <div class="row g-3">
+                {% for at in atenciones %}
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <strong class="text-primary">{{ at['tipo'] }}</strong>
+                            <div class="d-flex align-items-center gap-2">
+                                <small class="text-muted">{{ at['fecha'] }}</small>
+                                {% if es_admin %}
+                                <form action="{{ url_for('eliminar_atencion', id=at['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar esta atención?');">
+                                    <button type="submit" class="btn btn-sm text-danger p-0 border-0"><i class="bi bi-trash"></i></button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="fs-7 mb-2 text-dark mt-1">{{ at['descripcion'] }}</p>
+                        <div class="d-flex justify-content-between fs-8 text-secondary">
+                            <span><i class="bi bi-person me-1"></i>{{ at['responsable'] }}</span>
+                            <span>Resultado: <strong>{{ at['remision'] or 'Sin resultado' }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-4">No registra atenciones previas.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 4: Plan de Seguimiento -->
+    <div class="tab-pane fade" id="tab-seguimientos" role="tabpanel">
+        <div class="card border-0 bg-white p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-journal-check text-warning me-2"></i>Compromisos de Seguimiento</h5>
+                <button class="btn btn-primary rounded-3 fs-7" data-bs-toggle="modal" data-bs-target="#modalSeguimiento">+ Nuevo Seguimiento</button>
+            </div>
+            <div class="timeline-container">
+                {% for seg in seguimientos %}
+                <div class="p-3 border rounded-3 mb-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <strong class="text-dark">{{ seg['fecha'] }}</strong>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-warning-subtle text-warning border">{{ seg['estado_accion'] }}</span>
+                            {% if es_admin %}
+                            <form action="{{ url_for('eliminar_seguimiento', id=seg['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este seguimiento?');">
+                                <button type="submit" class="btn btn-sm text-danger p-0 border-0"><i class="bi bi-trash"></i></button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="fs-7 mb-2 mt-1">{{ seg['avance'] }}</p>
+                    <div class="p-2 rounded bg-white border fs-8 text-primary">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Próxima acción: <strong>{{ seg['proxima_accion'] }}</strong> (Contacto: {{ seg['fecha_proximo_contacto'] or 'Sin fecha' }})
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-4">Sin compromisos de seguimiento asignados.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 5: Núcleo Familiar -->
+    <div class="tab-pane fade" id="tab-familia" role="tabpanel">
+        <div class="card border-0 bg-white p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-people-fill text-danger me-2"></i>Integrantes del Núcleo Familiar</h5>
+                <button class="btn btn-primary rounded-3 fs-7" data-bs-toggle="modal" data-bs-target="#modalFamilia">+ Agregar Familiar</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead><tr><th>Nombre Completo</th><th>Parentesco</th><th>Edad</th>{% if es_admin %}<th class="text-end">Acciones</th>{% endif %}</tr></thead>
+                    <tbody>
+                        {% for fam in familia %}
+                        <tr>
+                            <td class="fw-semibold text-dark">{{ fam['nombre_completo'] }}</td>
+                            <td>{{ fam['parentesco'] }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ fam['edad'] }} años</span></td>
+                            {% if es_admin %}
+                            <td class="text-end">
+                                <form action="{{ url_for('eliminar_familiar', id=fam['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este familiar?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3"><i class="bi bi-trash-fill"></i></button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center py-4 text-muted">Sin familiares registrados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal fade" id="modalFamilia" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('agregar_familiar', id=b['id']) }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header"><h5 class="modal-title fw-bold">Agregar Integrante Familiar</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3"><label class="form-label">Nombre Completo</label><input type="text" name="nombre_completo" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Parentesco</label><input type="text" name="parentesco" class="form-control" placeholder="Ej: Hijo/a, Cónyuge" required></div>
+                <div class="mb-3"><label class="form-label">Edad</label><input type="number" name="edad" class="form-control" min="0" max="150"></div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Guardar</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPrograma" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('vincular_programa', id=b['id']) }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header"><h5 class="modal-title fw-bold">Vincular a Programa</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Programa</label>
+                    <select name="programa_nombre" id="selectProgramaFicha" class="form-select" onchange="toggleOtroProgramaFicha(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona un programa --</option>
+                        <option value="Emprendimiento Urabá">Emprendimiento Urabá</option>
+                        <option value="Formación Juvenil">Formación Juvenil</option>
+                        <option value="Atención Psicosocial Comunitaria">Atención Psicosocial Comunitaria</option>
+                        <option value="Seguridad Alimentaria y Nutrición">Seguridad Alimentaria y Nutrición</option>
+                        <option value="Desarrollo Agropecuario Sostenible">Desarrollo Agropecuario Sostenible</option>
+                        <option value="Educación y Liderazgo Comunitario">Educación y Liderazgo Comunitario</option>
+                        <option value="Inclusión y Protección Social">Inclusión y Protección Social</option>
+                        <option value="__otro__">+ Otro (Escribir personalizado...)</option>
+                    </select>
+                    <input type="text" id="inputOtroProgramaFicha" class="form-control mt-2 d-none" placeholder="Escribe el nombre del programa">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Línea de Trabajo</label>
+                    <select name="linea_trabajo" id="selectLineaFicha" class="form-select" onchange="toggleOtraLineaFicha(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona una línea de trabajo --</option>
+                        <option value="Capacitación y Formación">Capacitación y Formación</option>
+                        <option value="Capital Semilla">Capital Semilla</option>
+                        <option value="Asistencia Humanitaria">Asistencia Humanitaria</option>
+                        <option value="Salud y Bienestar">Salud y Bienestar</option>
+                        <option value="Integración Socioeconómica">Integración Socioeconómica</option>
+                        <option value="Fortalecimiento Organizativo">Fortalecimiento Organizativo</option>
+                        <option value="Infraestructura Social">Infraestructura Social</option>
+                        <option value="__otro__">+ Otra (Escribir personalizada...)</option>
+                    </select>
+                    <input type="text" id="inputOtraLineaFicha" class="form-control mt-2 d-none" placeholder="Escribe la línea de trabajo">
+                </div>
+                <div class="mb-3"><label class="form-label">Fecha de Vinculación</label><input type="date" name="fecha_vinculacion" class="form-control" required></div>
+                <div class="mb-3">
+                    <label class="form-label">Estado de participación</label>
+                    <select name="estado" class="form-select" required>
+                        <option value="inscrito">Inscrito</option>
+                        <option value="en proceso">En proceso</option>
+                        <option value="finalizado">Finalizado</option>
+                        <option value="retirado">Retirado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Vincular</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAtencion" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('registrar_atencion', id=b['id']) }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header"><h5 class="modal-title fw-bold">Registrar Atención o Ayuda</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Tipo de Atención</label>
+                    <select name="tipo" id="selectTipoFicha" class="form-select" onchange="toggleOtroTipoFicha(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona un tipo de atención --</option>
+                        <option value="Asesoría Jurídica">Asesoría Jurídica</option>
+                        <option value="Apoyo Psicosocial">Apoyo Psicosocial</option>
+                        <option value="Ayuda Humanitaria">Ayuda Humanitaria</option>
+                        <option value="Atención Médica / Salud">Atención Médica / Salud</option>
+                        <option value="Capacitación / Taller">Capacitación / Taller</option>
+                        <option value="Orientación Vocacional / Empleo">Orientación Vocacional / Empleo</option>
+                        <option value="Entrega de Subsidio o Insumo">Entrega de Subsidio o Insumo</option>
+                        <option value="Revision">Revisión o Verificación</option>
+                        <option value="__otro__">+ Otro (Escribir personalizado...)</option>
+                    </select>
+                    <input type="text" id="inputOtroTipoFicha" class="form-control mt-2 d-none" placeholder="Escribe el tipo de atención">
+                </div>
+                <div class="mb-3"><label class="form-label">Fecha</label><input type="date" name="fecha" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Descripción</label><textarea name="descripcion" class="form-control" rows="3" required></textarea></div>
+                <div class="mb-3"><label class="form-label">Responsable</label><input type="text" name="responsable" class="form-control" value="{{ usuario_actual or 'Funcionario Urabá' }}" required></div>
+                <div class="mb-3">
+                    <label class="form-label">Resultado de la Atención</label>
+                    <select name="resultado" id="selectResultadoFicha" class="form-select" onchange="toggleOtroResultadoFicha(this.value)" required>
+                        <option value="" disabled selected>-- Selecciona un resultado --</option>
+                        <option value="Entregado">Entregado</option>
+                        <option value="Orientado">Orientado</option>
+                        <option value="Remitido">Remitido</option>
+                        <option value="En trámite">En trámite</option>
+                        <option value="Atendido exitosamente">Atendido exitosamente</option>
+                        <option value="Requiere seguimiento">Requiere seguimiento</option>
+                        <option value="No asistió">No asistió</option>
+                        <option value="__otro__">+ Otro (Escribir personalizado...)</option>
+                    </select>
+                    <input type="text" id="inputOtroResultadoFicha" class="form-control mt-2 d-none" placeholder="Escribe el resultado">
+                </div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Registrar</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="modalSeguimiento" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('registrar_seguimiento', id=b['id']) }}" method="POST" class="modal-content rounded-4">
+            <div class="modal-header"><h5 class="modal-title fw-bold">Registrar Seguimiento</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body">
+                <p class="fs-7 text-muted">El seguimiento registra lo que cambió y lo que queda pendiente. La atención registra lo que se entregó o realizó.</p>
+                <div class="mb-3"><label class="form-label">Fecha Actual</label><input type="date" name="fecha" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Avance / Novedad</label><textarea name="avance" class="form-control" rows="3" required></textarea></div>
+                <div class="mb-3"><label class="form-label">Próxima Acción</label><input type="text" name="proxima_accion" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">Fecha Próximo Contacto</label><input type="date" name="fecha_proximo_contacto" class="form-control"></div>
+            </div>
+            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Guardar Seguimiento</button></div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleOtroProgramaFicha(val) {
+        const inp = document.getElementById('inputOtroProgramaFicha');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    function toggleOtraLineaFicha(val) {
+        const inp = document.getElementById('inputOtraLineaFicha');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    function toggleOtroTipoFicha(val) {
+        const inp = document.getElementById('inputOtroTipoFicha');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    function toggleOtroResultadoFicha(val) {
+        const inp = document.getElementById('inputOtroResultadoFicha');
+        if (val === '__otro__') {
+            inp.classList.remove('d-none');
+            inp.required = true;
+            inp.focus();
+        } else {
+            inp.classList.add('d-none');
+            inp.required = false;
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const formProg = document.querySelector('#modalPrograma form');
+        if (formProg) {
+            formProg.addEventListener('submit', function() {
+                const selProg = document.getElementById('selectProgramaFicha');
+                const inpProg = document.getElementById('inputOtroProgramaFicha');
+                if (selProg && selProg.value === '__otro__' && inpProg && inpProg.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpProg.value.trim();
+                    opt.text = inpProg.value.trim();
+                    selProg.appendChild(opt);
+                    selProg.value = inpProg.value.trim();
+                }
+
+                const selLinea = document.getElementById('selectLineaFicha');
+                const inpLinea = document.getElementById('inputOtraLineaFicha');
+                if (selLinea && selLinea.value === '__otro__' && inpLinea && inpLinea.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpLinea.value.trim();
+                    opt.text = inpLinea.value.trim();
+                    selLinea.appendChild(opt);
+                    selLinea.value = inpLinea.value.trim();
+                }
+            });
+        }
+
+        const formAtenc = document.querySelector('#modalAtencion form');
+        if (formAtenc) {
+            formAtenc.addEventListener('submit', function() {
+                const selTipo = document.getElementById('selectTipoFicha');
+                const inpTipo = document.getElementById('inputOtroTipoFicha');
+                if (selTipo && selTipo.value === '__otro__' && inpTipo && inpTipo.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpTipo.value.trim();
+                    opt.text = inpTipo.value.trim();
+                    selTipo.appendChild(opt);
+                    selTipo.value = inpTipo.value.trim();
+                }
+
+                const selRes = document.getElementById('selectResultadoFicha');
+                const inpRes = document.getElementById('inputOtroResultadoFicha');
+                if (selRes && selRes.value === '__otro__' && inpRes && inpRes.value.trim()) {
+                    let opt = document.createElement('option');
+                    opt.value = inpRes.value.trim();
+                    opt.text = inpRes.value.trim();
+                    selRes.appendChild(opt);
+                    selRes.value = inpRes.value.trim();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

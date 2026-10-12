@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Módulo de Certificaciones</h3>
+        <p class="text-muted fs-7 mb-0">Emisión y verificación digital de constancias de vinculación territorial</p>
+    </div>
+    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fs-7 fw-semibold">
+        <i class="bi bi-patch-check-fill me-1"></i> Formato Oficial Validador con QR
+    </span>
+</div>
+
+<div class="card border-0 p-3 mb-4 bg-white">
+    <div class="row g-2 align-items-center">
+        <div class="col-md-8">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" id="filtroCertificados" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por nombre, documento o código de folio en tiempo real...">
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end text-muted fs-7">
+            Total disponibles: <strong class="text-dark" id="totalCertificados">{{ beneficiarios|length }}</strong> beneficiarios
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaCertificados">
+            <thead>
+                <tr>
+                    <th class="ps-4">Folio / Código</th>
+                    <th>Documento</th>
+                    <th>Beneficiario</th>
+                    <th class="text-end pe-4">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in beneficiarios %}
+                <tr class="fila-cert">
+                    <td class="ps-4">
+                        <span class="badge font-monospace px-2 py-1 rounded-2" style="background: rgba(4, 120, 87, 0.08); color: #047857; border: 1px solid rgba(4, 120, 87, 0.2);">
+                            {{ b['codigo_interno'] }}
+                        </span>
+                    </td>
+                    <td>
+                        <small class="text-muted d-block fs-8">{{ b['tipo_doc'] }}</small>
+                        <strong class="text-dark">{{ b['num_doc'] }}</strong>
+                    </td>
+                    <td class="fw-semibold text-dark">
+                        {{ b['nombres'] }} {{ b['apellidos'] }}
+                    </td>
+                    <td class="text-end pe-4">
+                        <a href="{{ url_for('imprimir_certificado', id=b['id']) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-3 px-3 fs-7">
+                            <i class="bi bi-printer-fill me-1"></i> Emitir con QR
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">No existen beneficiarios para certificación.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const input = document.getElementById('filtroCertificados');
+        const filas = document.querySelectorAll('.fila-cert');
+        const totalSpan = document.getElementById('totalCertificados');
+
+        if (input) {
+            input.addEventListener('keyup', function() {
+                const query = input.value.toLowerCase().trim();
+                let visibles = 0;
+
+                filas.forEach(function(fila) {
+                    const texto = fila.textContent.toLowerCase();
+                    if (texto.includes(query)) {
+                        fila.style.display = '';
+                        visibles++;
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+
+                if (totalSpan) totalSpan.textContent = visibles;
+            });
+        }
+    });
+</script>
+{% endblock %}

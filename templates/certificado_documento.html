@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificado Oficial - {{ b['nombres'] }} {{ b['apellidos'] }} | URABÁ-PAÍS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600&family=Outfit:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: letter landscape;
+            margin: 10mm;
+        }
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .cert-container {
+            width: 1000px;
+            max-width: 100%;
+            background: #ffffff;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+        .cert-outer-border {
+            border: 3px solid #047857;
+            padding: 10px;
+            position: relative;
+        }
+        .cert-inner-border {
+            border: 1px solid #b45309;
+            padding: 40px 50px 30px 50px;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(255,255,255,1) 0%, rgba(248,250,252,0.6) 100%);
+        }
+        .cert-corner {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-color: #047857;
+        }
+        .corner-tl { top: 4px; left: 4px; border-top: 3px solid #047857; border-left: 3px solid #047857; }
+        .corner-tr { top: 4px; right: 4px; border-top: 3px solid #047857; border-right: 3px solid #047857; }
+        .corner-bl { bottom: 4px; left: 4px; border-bottom: 3px solid #047857; border-left: 3px solid #047857; }
+        .corner-br { bottom: 4px; right: 4px; border-bottom: 3px solid #047857; border-right: 3px solid #047857; }
+
+        .cert-title-org {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            color: #065f46;
+            letter-spacing: 0.15em;
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+        .cert-title-doc {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: #b45309;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 1rem;
+            margin-bottom: 24px;
+        }
+        .cert-name {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: #064e3b;
+            font-size: 2.2rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: inline-block;
+            padding-bottom: 8px;
+            margin: 14px 0;
+            min-width: 480px;
+        }
+        .badge-folio {
+            background: rgba(4, 120, 87, 0.08);
+            border: 1px solid rgba(4, 120, 87, 0.2);
+            color: #047857;
+            font-family: monospace;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .gold-seal {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d97706 0%, #b45309 50%, #78350f 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3);
+            border: 2px dashed rgba(255,255,255,0.7);
+        }
+        .no-print-bar {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 999;
+        }
+        @media print {
+            body { background-color: #fff; padding: 0; }
+            .cert-container { box-shadow: none; width: 100%; }
+            .no-print-bar { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print-bar d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-success rounded-pill px-4 shadow">
+            <i class="bi bi-printer-fill me-1"></i> Imprimir Certificado
+        </button>
+        <button onclick="window.close()" class="btn btn-light rounded-pill px-3 shadow">
+            Cerrar
+        </button>
+    </div>
+
+    <div class="cert-container">
+        <div class="cert-outer-border">
+            <div class="cert-corner corner-tl"></div>
+            <div class="cert-corner corner-tr"></div>
+            <div class="cert-corner corner-bl"></div>
+            <div class="cert-corner corner-br"></div>
+
+            <div class="cert-inner-border text-center">
+                <!-- Membrete -->
+                <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                    <div class="text-start">
+                        <span class="badge-folio">FOLIO: {{ b['codigo_interno'] }}</span>
+                    </div>
+                    <div>
+                        <i class="bi bi-shield-fill-check fs-1 text-success"></i>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-muted" style="font-size: 0.8rem;">VÁLIDO NACIONAL</span>
+                    </div>
+                </div>
+
+                <div class="cert-title-org">REPÚBLICA DE COLOMBIA · REGIÓN DE URABÁ</div>
+                <div class="cert-title-doc">SISTEMA INTEGRADO DE DESARROLLO Y GESTIÓN SOCIAL · URABÁ-PAÍS 2026</div>
+
+                <p class="text-muted fs-6 mb-2">LA DIRECCIÓN OPERATIVA REGIONAL HACE CONSTAR QUE:</p>
+
+                <!-- Beneficiario -->
+                <div>
+                    <div class="cert-name">{{ b['nombres'] }} {{ b['apellidos'] }}</div>
+                </div>
+
+                <p class="fs-6 text-dark mt-2 mb-3">
+                    Identificado(a) legalmente con <strong>{{ b['tipo_doc'] }} N° {{ b['num_doc'] }}</strong>, expedido en <strong>{{ b['municipio'] or 'Antioquia' }}</strong>
+                </p>
+
+                <p class="text-secondary mx-auto mb-4" style="max-width: 780px; font-size: 0.95rem; line-height: 1.6;">
+                    Se encuentra formalmente registrado(a) y activo(a) en la base de beneficiarios de los programas de integración, asistencia y desarrollo social <strong>URABÁ-PAÍS</strong>, participando conforme a las políticas de atención comunitaria y convivencia regional.
+                </p>
+
+                {% if participaciones %}
+                <div class="p-2 mb-4 rounded-3 d-inline-block border" style="background: rgba(4, 120, 87, 0.03); max-width: 800px;">
+                    <small class="text-success fw-bold me-2"><i class="bi bi-bookmark-check-fill"></i> PROGRAMAS VINCULADOS:</small>
+                    {% for p in participaciones %}
+                    <span class="badge bg-white text-dark border me-1">{{ p['programa_nombre'] }} ({{ p['estado'] }})</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Firmas y QR -->
+                <div class="row align-items-center pt-4 mt-2">
+                    <div class="col-4 text-center">
+                        <div class="gold-seal mb-2">
+                            <i class="bi bi-award-fill fs-2"></i>
+                        </div>
+                        <div class="text-muted" style="font-size: 0.75rem;">SELLO DE CERTIFICACIÓN OFICIAL</div>
+                    </div>
+
+                    <div class="col-4 text-center">
+                        <div style="height: 45px;"></div>
+                        <div class="border-top border-dark mx-auto" style="width: 220px;"></div>
+                        <strong class="d-block text-dark mt-1" style="font-size: 0.9rem;">DIRECCIÓN GENERAL</strong>
+                        <span class="text-muted" style="font-size: 0.8rem;">Comité Técnico URABÁ-PAÍS 2026</span>
+                    </div>
+
+                    <div class="col-4 text-center">
+                        <!-- QR dinámico generado mediante API segura QRServer -->
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=95x95&data=URABA-PAIS-VERIFICADO:DOC={{ b['num_doc'] }}-COD={{ b['codigo_interno'] }}" alt="Código QR Verificación" style="width: 85px; height: 85px; border: 1px solid #e2e8f0; padding: 4px; border-radius: 8px;">
+                        <span class="d-block text-muted mt-1" style="font-size: 0.72rem;">Escanear para verificar validez</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-2 border-top text-center text-muted" style="font-size: 0.7rem;">
+                    Expedido en la Subregión de Urabá · Documento generado electrónicamente con firma institucional y código criptográfico de autenticidad.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

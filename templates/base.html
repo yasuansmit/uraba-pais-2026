@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URABÁ-PAÍS 2026 | Suite Ejecutiva</title>
+
+    <script>
+        (function() {
+            const temaGuardado = localStorage.getItem('tema_uraba') || 'claro';
+            if (temaGuardado === 'oscuro') {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+                document.documentElement.classList.add('tema-oscuro');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+                document.documentElement.classList.remove('tema-oscuro');
+            }
+
+            const estiloGuardado = localStorage.getItem('estilo_uraba') || 'glassy';
+            if (estiloGuardado === 'glassy') {
+                document.documentElement.classList.add('estilo-glassy');
+            } else {
+                document.documentElement.classList.remove('estilo-glassy');
+            }
+
+            const fuenteGuardada = localStorage.getItem('fuente_uraba') || '{{ fuente_actual or "Inter" }}';
+            document.documentElement.style.setProperty('--font-family-current', fuenteGuardada);
+        })();
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #047857;
+            --primary-hover: #065f46;
+            --primary-subtle: #d1fae5;
+            --accent-emerald: #10b981;
+            --sidebar-bg: #062e22;
+            --sidebar-hover: #0a4735;
+            --sidebar-active: #059669;
+            --surface-bg: #f8fafc;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --card-border: rgba(226, 232, 240, 0.8);
+            --card-shadow: 0 4px 20px -2px rgba(6, 46, 34, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+            --radius-main: 16px;
+            --font-family-current: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family-current), sans-serif !important;
+            background-color: var(--surface-bg);
+            color: var(--text-dark);
+            letter-spacing: -0.01em;
+            height: 100vh;
+            overflow: hidden !important;
+        }
+
+        /* Animaciones suaves en entrada de vistas y micro-interacciones */
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            min-width: 0;
+            height: 100vh;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            animation: fadeInSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Hover dinámico 3D y elevación sutil para tarjetas interactivas */
+        .card {
+            border: 1px solid var(--card-border) !important;
+            border-radius: var(--radius-main) !important;
+            box-shadow: var(--card-shadow) !important;
+            transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px -4px rgba(6, 46, 34, 0.09), 0 4px 10px -2px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        /* Pulsación sutil en badges de sistema activo */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.18); }
+        }
+        .pulse-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Outfit', var(--font-family-current), sans-serif !important;
+            letter-spacing: -0.02em;
+        }
+
+        /* Sidebar Styling (Fija con scroll interno si fuera necesario) */
+        .sidebar {
+            width: 275px;
+            background: linear-gradient(180deg, #062e22 0%, #031c15 100%);
+            height: 100vh;
+            max-height: 100vh;
+            position: sticky;
+            top: 0;
+            left: 0;
+            flex-shrink: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 100;
+        }
+        .sidebar .brand-container {
+            padding: 24px 20px 20px 20px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .sidebar .brand-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .sidebar .nav-link {
+            color: #94a3b8;
+            padding: 11px 18px;
+            margin: 3px 14px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 0.93rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar .nav-link i {
+            font-size: 1.15rem;
+            transition: transform 0.2s ease;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            transform: translateX(3px);
+        }
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
+            font-weight: 600;
+        }
+        .sidebar .nav-link.active i {
+            transform: scale(1.1);
+        }
+
+        /* Buttons & Overrides */
+        .btn-primary {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+            border-color: #047857 !important;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+            border-color: #065f46 !important;
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.35);
+            transform: translateY(-1px);
+        }
+        .btn-outline-primary {
+            color: #047857 !important;
+            border-color: #059669 !important;
+        }
+        .btn-outline-primary:hover {
+            background: #047857 !important;
+            color: #ffffff !important;
+        }
+        .text-primary {
+            color: #047857 !important;
+        }
+        .bg-primary {
+            background-color: #047857 !important;
+        }
+        .bg-primary-subtle {
+            background-color: #d1fae5 !important;
+            color: #065f46 !important;
+        }
+
+        /* ═════════════════════════════════════════════════════════════
+           FLECHA VISIBLE Y ESTILIZADA EN TODOS LOS SELECTORES
+           ═════════════════════════════════════════════════════════════ */
+        select.form-select,
+        .form-select {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23059669' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 1rem center !important;
+            background-size: 16px 12px !important;
+            padding-right: 2.5rem !important;
+            cursor: pointer !important;
+        }
+
+        .card {
+            border: 1px solid var(--card-border) !important;
+            border-radius: var(--radius-main) !important;
+            box-shadow: var(--card-shadow) !important;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .table {
+            --bs-table-hover-bg: #f1f5f9;
+        }
+        .table thead th {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 14px 16px;
+        }
+        .table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: #ffffff;
+            border-radius: 16px 16px 0px 16px;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+        }
+        .chat-bubble-bot {
+            background-color: #ffffff;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px 16px 16px 0px;
+        }
+        .fs-7 { font-size: 0.85rem; }
+        .fs-8 { font-size: 0.75rem; }
+
+        /* Dark Theme Variables */
+        html.tema-oscuro,
+        html.tema-oscuro body,
+        [data-bs-theme="dark"],
+        [data-bs-theme="dark"] body {
+            background-color: #091310 !important;
+            color: #e2e8f0 !important;
+        }
+        html.tema-oscuro .main-content,
+        [data-bs-theme="dark"] .main-content {
+            background-color: #091310 !important;
+        }
+        html.tema-oscuro .card,
+        html.tema-oscuro .bg-white,
+        html.tema-oscuro .bg-light,
+        html.tema-oscuro .modal-content,
+        html.tema-oscuro .table-light,
+        [data-bs-theme="dark"] .card,
+        [data-bs-theme="dark"] .bg-white,
+        [data-bs-theme="dark"] .bg-light,
+        [data-bs-theme="dark"] .modal-content,
+        [data-bs-theme="dark"] .table-light {
+            background-color: #10221c !important;
+            color: #ffffff !important;
+            border-color: #1a382e !important;
+        }
+        html.tema-oscuro h1, html.tema-oscuro h2, html.tema-oscuro h3,
+        html.tema-oscuro h4, html.tema-oscuro h5, html.tema-oscuro h6,
+        html.tema-oscuro p, html.tema-oscuro label, html.tema-oscuro strong,
+        html.tema-oscuro .text-dark, html.tema-oscuro .text-muted,
+        [data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3,
+        [data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6,
+        [data-bs-theme="dark"] p, [data-bs-theme="dark"] label, [data-bs-theme="dark"] strong,
+        [data-bs-theme="dark"] .text-dark, [data-bs-theme="dark"] .text-muted {
+            color: #e2e8f0 !important;
+        }
+        html.tema-oscuro .table,
+        html.tema-oscuro .table th,
+        html.tema-oscuro .table td,
+        [data-bs-theme="dark"] .table,
+        [data-bs-theme="dark"] .table th,
+        [data-bs-theme="dark"] .table td {
+            background-color: #10221c !important;
+            color: #e2e8f0 !important;
+            border-color: #1a382e !important;
+        }
+        html.tema-oscuro .form-control,
+        html.tema-oscuro .form-select,
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            background-color: #0b1914 !important;
+            color: #ffffff !important;
+            border-color: #1a382e !important;
+        }
+        html.tema-oscuro #chatMessages,
+        [data-bs-theme="dark"] #chatMessages {
+            background-color: #0b1914 !important;
+        }
+        html.tema-oscuro .chat-bubble-bot,
+        [data-bs-theme="dark"] .chat-bubble-bot {
+            background-color: #10221c !important;
+            color: #ffffff !important;
+            border-color: #1a382e !important;
+        }
+        html.tema-oscuro .list-group-item,
+        [data-bs-theme="dark"] .list-group-item {
+            background-color: transparent !important;
+            color: #e2e8f0 !important;
+            border-color: #1a382e !important;
+        }
+
+        /* ═════════════════════════════════════════════════════════════
+           ESTILO GLASSY (GLASSMORPHISM PREMIER & FROSTED GLASS)
+           ═════════════════════════════════════════════════════════════ */
+        html.estilo-glassy body {
+            background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.06) 0%, transparent 40%),
+                        linear-gradient(135deg, #f0fdf4 0%, #f8fafc 50%, #ecfdf5 100%) !important;
+            background-attachment: fixed !important;
+        }
+
+        html.estilo-glassy .sidebar {
+            background: linear-gradient(180deg, rgba(6, 46, 34, 0.92) 0%, rgba(3, 28, 21, 0.95) 100%) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        html.estilo-glassy .card,
+        html.estilo-glassy .modal-content,
+        html.estilo-glassy .navbar,
+        html.estilo-glassy #chatWidget {
+            background: rgba(255, 255, 255, 0.72) !important;
+            backdrop-filter: blur(16px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.08), 0 2px 8px 0 rgba(0, 0, 0, 0.04) !important;
+        }
+
+        html.estilo-glassy .card:hover {
+            background: rgba(255, 255, 255, 0.85) !important;
+            border-color: rgba(16, 185, 129, 0.4) !important;
+            box-shadow: 0 16px 36px 0 rgba(6, 46, 34, 0.12), 0 4px 12px 0 rgba(0, 0, 0, 0.05) !important;
+            transform: translateY(-4px);
+        }
+
+        html.estilo-glassy .table {
+            --bs-table-bg: transparent !important;
+        }
+        html.estilo-glassy .table thead th {
+            background: rgba(241, 245, 249, 0.65) !important;
+            backdrop-filter: blur(8px) !important;
+            border-bottom: 2px solid rgba(16, 185, 129, 0.15) !important;
+        }
+        html.estilo-glassy .table tbody tr:hover td {
+            background: rgba(16, 185, 129, 0.04) !important;
+        }
+
+        html.estilo-glassy .form-control,
+        html.estilo-glassy .form-select {
+            background: rgba(255, 255, 255, 0.65) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            border: 1px solid rgba(203, 213, 225, 0.8) !important;
+            transition: all 0.2s ease;
+        }
+        html.estilo-glassy .form-control:focus,
+        html.estilo-glassy .form-select:focus {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18) !important;
+        }
+
+        html.estilo-glassy .badge {
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+        }
+
+        /* Glassy en Modo Oscuro */
+        html.estilo-glassy.tema-oscuro body,
+        html.estilo-glassy[data-bs-theme="dark"] body {
+            background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.1) 0%, transparent 40%),
+                        linear-gradient(135deg, #061510 0%, #091310 50%, #0b1a15 100%) !important;
+            background-attachment: fixed !important;
+        }
+
+        html.estilo-glassy.tema-oscuro .card,
+        html.estilo-glassy.tema-oscuro .modal-content,
+        html.estilo-glassy.tema-oscuro #chatWidget,
+        html.estilo-glassy[data-bs-theme="dark"] .card,
+        html.estilo-glassy[data-bs-theme="dark"] .modal-content,
+        html.estilo-glassy[data-bs-theme="dark"] #chatWidget {
+            background: rgba(16, 34, 28, 0.65) !important;
+            backdrop-filter: blur(20px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
+        }
+
+        html.estilo-glassy.tema-oscuro .card:hover,
+        html.estilo-glassy[data-bs-theme="dark"] .card:hover {
+            background: rgba(16, 34, 28, 0.8) !important;
+            border-color: rgba(16, 185, 129, 0.3) !important;
+            box-shadow: 0 16px 36px 0 rgba(0, 0, 0, 0.5) !important;
+        }
+
+        html.estilo-glassy.tema-oscuro .form-control,
+        html.estilo-glassy[data-bs-theme="dark"] .form-control {
+            background: rgba(11, 25, 20, 0.7) !important;
+            backdrop-filter: blur(8px) !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+        }
+
+        html.estilo-glassy.tema-oscuro .form-select,
+        html.estilo-glassy[data-bs-theme="dark"] .form-select {
+            background-color: rgba(11, 25, 20, 0.8) !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2310b981' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 1rem center !important;
+            background-size: 16px 12px !important;
+            backdrop-filter: blur(8px) !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+        }
+
+        .modal-backdrop { z-index: 1050; }
+        .modal { z-index: 1055; }
+    </style>
+</head>
+<body class="d-flex">
+
+    <aside class="sidebar d-flex flex-column justify-content-between p-3 text-white">
+        <div>
+            <div class="d-flex align-items-center gap-3 px-2 py-4 mb-3 border-bottom border-secondary border-opacity-25">
+                <div class="brand-badge">
+                    <i class="bi bi-shield-fill-check fs-4 text-white"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0 text-white" style="letter-spacing: -0.02em;">URABÁ-PAÍS</h5>
+                    <span class="fs-8 text-light text-opacity-75 d-flex align-items-center gap-1">
+                        <span class="d-inline-block bg-success rounded-circle" style="width: 6px; height: 6px;"></span>
+                        Gestión Social 2026
+                    </span>
+                </div>
+            </div>
+
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item">
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                        <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('listar_beneficiarios') }}" class="nav-link {% if request.endpoint and 'beneficiario' in request.endpoint %}active{% endif %}">
+                        <i class="bi bi-people-fill"></i> Beneficiarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('programas') }}" class="nav-link {% if request.endpoint == 'programas' %}active{% endif %}">
+                        <i class="bi bi-diagram-3-fill"></i> Programas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('atenciones') }}" class="nav-link {% if request.endpoint == 'atenciones' %}active{% endif %}">
+                        <i class="bi bi-heart-pulse-fill"></i> Atenciones
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('seguimientos') }}" class="nav-link {% if request.endpoint == 'seguimientos' %}active{% endif %}">
+                        <i class="bi bi-journal-check"></i> Seguimientos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('reportes') }}" class="nav-link {% if request.endpoint == 'reportes' %}active{% endif %}">
+                        <i class="bi bi-bar-chart-line-fill"></i> Reportes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('certificados') }}" class="nav-link {% if request.endpoint == 'certificados' %}active{% endif %}">
+                        <i class="bi bi-file-earmark-text-fill"></i> Certificados
+                    </a>
+                </li>
+                {% if es_admin %}
+                <li class="nav-item">
+                    <a href="{{ url_for('listar_usuarios') }}" class="nav-link {% if request.endpoint == 'listar_usuarios' %}active{% endif %}">
+                        <i class="bi bi-people-fill"></i> Usuarios
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('configuracion') }}" class="nav-link {% if request.endpoint == 'configuracion' %}active{% endif %}">
+                        <i class="bi bi-gear-fill"></i> Configuración
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="px-2 pt-3 border-top border-secondary border-opacity-25">
+            <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="background: rgba(255, 255, 255, 0.05);">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 36px; height: 36px; background: linear-gradient(135deg, #10b981 0%, #047857 100%); font-size: 0.85rem;">
+                        {{ (usuario_actual[0] if usuario_actual else 'U') | upper }}
+                    </div>
+                    <div>
+                        <h6 class="fs-7 fw-bold mb-0 text-white">{{ usuario_actual or 'Usuario' }}</h6>
+                        <span class="fs-8 text-light text-opacity-75 text-capitalize d-block">{{ rol_actual or 'funcionario' }}</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="text-light text-opacity-75 text-decoration-none p-1 rounded hover-light" title="Cerrar Sesión" onclick="return confirm('¿Está seguro de que desea cerrar la sesión?');">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </a>
+            </div>
+
+            <button type="button" id="btnToggleDark" class="btn btn-sm w-100 mt-2 d-flex align-items-center justify-content-center gap-2 border border-secondary border-opacity-50 text-white rounded-3" style="background: rgba(255,255,255,0.03);">
+                <i class="bi bi-moon-stars-fill" id="iconModo"></i> <span id="labelModo" class="fs-8">Modo Oscuro</span>
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+            <span class="text-muted fs-7"><i class="bi bi-house-door me-1"></i> Módulo Actual: <strong class="text-capitalize">{{ request.endpoint.replace('_', ' ') if request.endpoint else '' }}</strong></span>
+            
+            <!-- Botón Buscador Global Spotlight (Ctrl + K) -->
+            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1 d-flex align-items-center gap-2 shadow-sm text-muted" onclick="abrirSpotlight()" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);">
+                <i class="bi bi-search text-success"></i>
+                <span class="fs-8">Buscar beneficiario o módulo...</span>
+                <kbd class="bg-dark text-white border-0 px-2 py-0 rounded fs-8" style="font-size: 0.7rem;">Ctrl K</kbd>
+            </button>
+        </div>
+
+        <!-- Notificaciones Flotantes Toast -->
+        <div class="toast-container position-fixed top-0 end-0 p-4" style="z-index: 1090;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast show align-items-center border-0 rounded-4 shadow-lg mb-2 text-white {% if category == 'success' %}bg-success{% elif category == 'danger' %}bg-danger{% elif category == 'warning' %}bg-warning text-dark{% else %}bg-dark{% endif %}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="4500" data-bs-autohide="true">
+                        <div class="d-flex p-2">
+                            <div class="toast-body fs-7 d-flex align-items-center gap-2">
+                                {% if category == 'success' %}<i class="bi bi-check-circle-fill fs-5"></i>
+                                {% elif category == 'danger' %}<i class="bi bi-exclamation-octagon-fill fs-5"></i>
+                                {% elif category == 'warning' %}<i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                                {% else %}<i class="bi bi-info-circle-fill fs-5"></i>{% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <div class="position-fixed bottom-0 end-0 m-4" style="z-index: 1040;">
+        <button type="button" id="btnOpenChat" class="btn btn-primary rounded-circle shadow-lg p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+            <i class="bi bi-robot fs-3"></i>
+        </button>
+    </div>
+
+    <div id="chatWidget" class="card border-0 shadow-lg position-fixed bottom-0 end-0 m-4 rounded-4 d-none" style="width: 360px; height: 500px; max-height: 85vh; z-index: 1040;">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top-4 py-3">
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-white text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                    <i class="bi bi-robot fs-5"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-0 text-white">Asistente Urabá-País</h6>
+                    <span class="fs-8 opacity-75">AI en tiempo real</span>
+                </div>
+            </div>
+            <button type="button" id="btnCloseChat" class="btn-close btn-close-white"></button>
+        </div>
+
+        <div id="chatMessages" class="card-body overflow-auto p-3 d-flex flex-column gap-2" style="background-color: #f8fafc;">
+            <div class="p-3 chat-bubble-bot shadow-sm">
+                <p class="mb-0 fs-7">¡Hola! Soy tu asistente de Urabá-País 2026. ¿En qué puedo orientarte hoy sobre beneficiarios, programas o métricas?</p>
+            </div>
+        </div>
+
+        <div class="card-footer border-0 rounded-bottom-4 p-2">
+            <form id="chatForm" class="d-flex gap-2">
+                <input type="text" id="chatInput" class="form-control fs-7 border-0 bg-light" placeholder="Escribe una pregunta..." required>
+                <button type="submit" class="btn btn-primary rounded-3 px-3">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Spotlight Command Palette Modal (Ctrl + K) -->
+    <div class="modal fade" id="modalSpotlight" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(8px);">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+                <div class="p-3 border-bottom d-flex align-items-center gap-3">
+                    <i class="bi bi-search text-success fs-4"></i>
+                    <input type="text" id="inputSpotlight" class="form-control form-control-lg border-0 shadow-none bg-transparent ps-0 fs-6" placeholder="Busca por nombre, cédula, código (BEN-), o escribe 'reportes', 'dashboard'..." autocomplete="off">
+                    <kbd class="bg-light text-muted border px-2 py-1 rounded fs-8">ESC</kbd>
+                </div>
+                <div id="spotlightResultados" class="p-2" style="max-height: 380px; overflow-y: auto;">
+                    <div class="p-4 text-center text-muted">
+                        <i class="bi bi-command fs-2 d-block mb-2 text-success opacity-75"></i>
+                        <p class="fs-7 mb-0">Escribe al menos 2 caracteres o usa palabras clave como <span class="badge bg-light text-dark border">nuevo</span>, <span class="badge bg-light text-dark border">certificados</span>, <span class="badge bg-light text-dark border">programas</span>.</p>
+                    </div>
+                </div>
+                <div class="p-2 bg-light border-top d-flex justify-content-between align-items-center px-3">
+                    <small class="text-muted fs-8"><i class="bi bi-arrow-return-left me-1"></i> Usa <kbd class="bg-white border text-dark">Enter</kbd> para navegar</small>
+                    <small class="text-muted fs-8">Suite Urabá-País 2026</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.querySelectorAll('.modal').forEach(function(modal) {
+            document.body.appendChild(modal);
+        });
+
+        function abrirModal(selector) {
+            const modal = document.querySelector(selector);
+            if (!modal) return;
+            if (window.bootstrap && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modal).show();
+                return;
+            }
+            modal.classList.add('show');
+            modal.style.display = 'block';
+            document.body.classList.add('modal-open');
+            let fondo = document.getElementById('modalFondoManual');
+            if (!fondo) {
+                fondo = document.createElement('div');
+                fondo.id = 'modalFondoManual';
+                fondo.className = 'modal-backdrop fade show';
+                document.body.appendChild(fondo);
+            }
+        }
+
+        function cerrarModal(modal) {
+            if (window.bootstrap && bootstrap.Modal) {
+                const inst = bootstrap.Modal.getInstance(modal);
+                if (inst) inst.hide();
+            }
+            modal.classList.remove('show');
+            modal.style.display = 'none';
+            const fondo = document.getElementById('modalFondoManual');
+            if (fondo) fondo.remove();
+            document.body.classList.remove('modal-open');
+        }
+
+        document.addEventListener('click', function(e) {
+            const abrir = e.target.closest('[data-bs-toggle="modal"]');
+            if (abrir) {
+                e.preventDefault();
+                const destino = abrir.getAttribute('data-bs-target');
+                if (destino) abrirModal(destino);
+                return;
+            }
+            const cerrar = e.target.closest('[data-bs-dismiss="modal"]');
+            if (cerrar) {
+                const modal = cerrar.closest('.modal');
+                if (modal) cerrarModal(modal);
+            }
+        });
+
+        function aplicarFuente(fuente) {
+            document.documentElement.style.setProperty('--font-family-current', fuente);
+            localStorage.setItem('fuente_uraba', fuente);
+        }
+
+        const fuenteActiva = localStorage.getItem('fuente_uraba');
+        if (fuenteActiva) {
+            aplicarFuente(fuenteActiva);
+        }
+
+        function aplicarEstilo(estilo) {
+            if (estilo === 'glassy') {
+                document.documentElement.classList.add('estilo-glassy');
+            } else {
+                document.documentElement.classList.remove('estilo-glassy');
+            }
+            localStorage.setItem('estilo_uraba', estilo);
+        }
+
+        const estiloActivo = localStorage.getItem('estilo_uraba') || 'glassy';
+        aplicarEstilo(estiloActivo);
+
+        const btnToggleDark = document.getElementById('btnToggleDark');
+        const iconModo = document.getElementById('iconModo');
+        const labelModo = document.getElementById('labelModo');
+
+        function aplicarTema(esOscuro) {
+            document.documentElement.setAttribute('data-bs-theme', esOscuro ? 'dark' : 'light');
+            document.documentElement.classList.toggle('tema-oscuro', esOscuro);
+            document.body.classList.toggle('tema-oscuro', esOscuro);
+            localStorage.setItem('tema_uraba', esOscuro ? 'oscuro' : 'claro');
+            if (iconModo) iconModo.className = esOscuro ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill';
+            if (labelModo) labelModo.textContent = esOscuro ? 'Modo Claro' : 'Modo Oscuro';
+        }
+
+        aplicarTema(localStorage.getItem('tema_uraba') === 'oscuro');
+
+        if (btnToggleDark) {
+            btnToggleDark.addEventListener('click', function() {
+                const ahoraOscuro = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+                aplicarTema(!ahoraOscuro);
+            });
+        }
+
+        const btnOpenChat = document.getElementById('btnOpenChat');
+        const btnCloseChat = document.getElementById('btnCloseChat');
+        const chatWidget = document.getElementById('chatWidget');
+        const chatForm = document.getElementById('chatForm');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+
+        if (btnOpenChat && chatWidget) {
+            btnOpenChat.addEventListener('click', function() {
+                chatWidget.classList.remove('d-none');
+                btnOpenChat.classList.add('d-none');
+            });
+        }
+        if (btnCloseChat && chatWidget && btnOpenChat) {
+            btnCloseChat.addEventListener('click', function() {
+                chatWidget.classList.add('d-none');
+                btnOpenChat.classList.remove('d-none');
+            });
+        }
+        if (chatForm && chatInput && chatMessages) {
+            chatForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const mensaje = chatInput.value.trim();
+                if (!mensaje) return;
+                chatMessages.insertAdjacentHTML('beforeend', '<div class="p-3 chat-bubble-user shadow-sm ms-auto"><p class="mb-0 fs-7"></p></div>');
+                chatMessages.lastElementChild.querySelector('p').textContent = mensaje;
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                try {
+                    const response = await fetch('/api/asistente', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mensaje: mensaje })
+                    });
+                    const data = await response.json();
+                    chatMessages.insertAdjacentHTML('beforeend', '<div class="p-3 chat-bubble-bot shadow-sm"><p class="mb-0 fs-7"></p></div>');
+                    chatMessages.lastElementChild.querySelector('p').textContent = data.respuesta || 'Sin respuesta';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                } catch (err) {
+                    chatMessages.insertAdjacentHTML('beforeend', '<div class="p-3 chat-bubble-bot shadow-sm text-danger"><p class="mb-0 fs-7">Ocurrió un error al conectar con el asistente.</p></div>');
+                }
+            });
+        }
+
+        // ═════════════════════════════════════════════════════════════
+        // BUSCADOR GLOBAL SPOTLIGHT (CTRL + K / CMD + K)
+        // ═════════════════════════════════════════════════════════════
+        const modalSpotlight = document.getElementById('modalSpotlight');
+        const inputSpotlight = document.getElementById('inputSpotlight');
+        const spotlightResultados = document.getElementById('spotlightResultados');
+        let spotlightTimeout = null;
+
+        function abrirSpotlight() {
+            if (!modalSpotlight) return;
+            abrirModal('#modalSpotlight');
+            setTimeout(() => {
+                if (inputSpotlight) {
+                    inputSpotlight.focus();
+                    inputSpotlight.select();
+                }
+            }, 150);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+                e.preventDefault();
+                abrirSpotlight();
+            }
+        });
+
+        if (inputSpotlight && spotlightResultados) {
+            inputSpotlight.addEventListener('input', function() {
+                const val = this.value.trim();
+                clearTimeout(spotlightTimeout);
+                if (val.length < 2) {
+                    spotlightResultados.innerHTML = `
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-command fs-2 d-block mb-2 text-success opacity-75"></i>
+                            <p class="fs-7 mb-0">Escribe al menos 2 caracteres o prueba con <span class="badge bg-light text-dark border">nuevo</span>, <span class="badge bg-light text-dark border">certificados</span>, <span class="badge bg-light text-dark border">programas</span>.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                spotlightTimeout = setTimeout(async () => {
+                    spotlightResultados.innerHTML = `<div class="p-4 text-center text-muted"><div class="spinner-border spinner-border-sm text-success me-2"></div>Buscando en la base de datos...</div>`;
+                    try {
+                        const resp = await fetch(`/api/buscar_global?q=${encodeURIComponent(val)}`);
+                        const data = await resp.json();
+                        const items = data.resultados || [];
+                        if (items.length === 0) {
+                            spotlightResultados.innerHTML = `<div class="p-4 text-center text-muted"><i class="bi bi-search fs-3 d-block mb-2 text-warning"></i>No se encontraron resultados para "<strong>${val}</strong>"</div>`;
+                            return;
+                        }
+
+                        let html = '<div class="list-group list-group-flush">';
+                        items.forEach(it => {
+                            html += `
+                                <a href="${it.url}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3 border-0 rounded-3 mb-1" style="transition: all 0.2s;">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="p-2 bg-success-subtle text-success rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                            <i class="bi ${it.icon || 'bi-search'} fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <strong class="d-block text-dark fs-7">${it.titulo}</strong>
+                                            ${it.subtitulo ? `<small class="text-muted fs-8">${it.subtitulo}</small>` : ''}
+                                        </div>
+                                    </div>
+                                    <span class="badge ${it.tipo === 'Beneficiario' ? 'bg-primary' : 'bg-light text-dark border'} rounded-pill fs-8">${it.tipo}</span>
+                                </a>
+                            `;
+                        });
+                        html += '</div>';
+                        spotlightResultados.innerHTML = html;
+                    } catch (err) {
+                        spotlightResultados.innerHTML = `<div class="p-3 text-danger text-center fs-7">Error al buscar resultados.</div>`;
+                    }
+                }, 220);
+            });
+        }
+    </script>
+</body>
+</html>

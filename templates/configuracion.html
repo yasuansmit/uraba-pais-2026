@@ -1,0 +1,220 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Título de la Vista -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1">Configuración del Sistema</h3>
+        <p class="text-muted fs-7 mb-0">Ajustes institucionales, copias de seguridad y seguridad de la plataforma</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Personalización Visual y Tipografía -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-fonts text-success fs-4"></i>
+                            <h5 class="fw-bold mb-0 text-dark">Tipografía y Estilo Visual</h5>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8">
+                            En Tiempo Real
+                        </span>
+                    </div>
+                    <p class="text-muted fs-7 mb-3">Personalice la fuente tipográfica de la plataforma para adaptar la estética visual según su preferencia institucional.</p>
+
+                    <form action="{{ url_for('guardar_apariencia') }}" method="POST" id="formApariencia">
+                        <!-- Selector de Acabado / Estilo Visual -->
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-semibold text-dark">Acabado Visual de la Interfaz</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="p-3 rounded-3 border text-center cursor-pointer opcion-estilo" id="optGlassy" onclick="seleccionarEstilo('glassy')" style="cursor: pointer; transition: all 0.2s;">
+                                        <i class="bi bi-droplet-half fs-4 text-emerald d-block mb-1 text-success"></i>
+                                        <strong class="fs-7 d-block">Efecto Glassy</strong>
+                                        <small class="text-muted fs-8">Cristal traslúcido & blur</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 rounded-3 border text-center cursor-pointer opcion-estilo" id="optSolido" onclick="seleccionarEstilo('solido')" style="cursor: pointer; transition: all 0.2s;">
+                                        <i class="bi bi-square-fill fs-4 text-muted d-block mb-1"></i>
+                                        <strong class="fs-7 d-block">Clásico Sólido</strong>
+                                        <small class="text-muted fs-8">Superficies opacas</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="estilo_visual" id="inputEstiloVisual" value="glassy">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-semibold text-dark">Fuente del Sistema</label>
+                            <select name="fuente" id="selectFuente" class="form-select rounded-3 fs-7" onchange="cambiarFuenteEnVivo(this.value)">
+                                <option value="'Inter', sans-serif">Inter (Estándar Corporativo / Alta legibilidad)</option>
+                                <option value="'Outfit', sans-serif">Outfit (Moderna, Geométrica y Ejecutiva)</option>
+                                <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (Elegante y Tecnológica)</option>
+                                <option value="'Poppins', sans-serif">Poppins (Amigable, Nítida y Contemporánea)</option>
+                                <option value="'Lexend', sans-serif">Lexend (Diseñada para Lectura Rápida y Fluida)</option>
+                            </select>
+                        </div>
+
+                        <!-- Caja de previsualización en vivo -->
+                        <div class="p-3 rounded-3 mb-3 border bg-light" id="previewTipografia">
+                            <small class="text-muted d-block mb-1 fs-8 fw-semibold text-uppercase">Previsualización en tiempo real:</small>
+                            <h5 class="fw-bold mb-1 text-dark" id="previewTitulo">URABÁ-PAÍS 2026 · Gestión Social</h5>
+                            <p class="fs-7 text-muted mb-0" id="previewTexto">Esta es una muestra de cómo se visualizan las tarjetas con efecto Glassy, tablas, botones y reportes.</p>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary rounded-3 w-100 py-2 fs-7 fw-semibold shadow-sm">
+                            <i class="bi bi-check2-circle me-1"></i> Guardar Preferencias Visuales
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parámetros del Sistema y Motor de BD -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <i class="bi bi-cpu-fill text-primary fs-4"></i>
+                            <h5 class="fw-bold mb-0 text-dark">Infraestructura y Parámetros</h5>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-semibold text-dark">Entidad / Subregión</label>
+                            <input type="text" class="form-control bg-light rounded-3 fs-7" value="URABÁ-PAÍS · Subregión de Urabá" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fs-7 fw-semibold text-dark">Motor de Base de Datos</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-success"><i class="bi bi-database-check"></i></span>
+                                <input type="text" class="form-control bg-light border-start-0 fs-7" value="MySQL Server (uraba_pais_db)" readonly>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label fs-7 fw-semibold text-dark">Estado de Módulos</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-success-subtle text-success border px-2 py-1 rounded-pill fs-8"><i class="bi bi-check-circle me-1"></i>Beneficiarios</span>
+                                <span class="badge bg-success-subtle text-success border px-2 py-1 rounded-pill fs-8"><i class="bi bi-check-circle me-1"></i>Ficha 360° Tabs</span>
+                                <span class="badge bg-success-subtle text-success border px-2 py-1 rounded-pill fs-8"><i class="bi bi-check-circle me-1"></i>Certificados QR</span>
+                                <span class="badge bg-success-subtle text-success border px-2 py-1 rounded-pill fs-8"><i class="bi bi-check-circle me-1"></i>Chart.js Metrics</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Seguridad y Credenciales -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-shield-lock-fill text-warning fs-4"></i>
+                        <h5 class="fw-bold mb-0">Seguridad y Credenciales</h5>
+                    </div>
+                    <p class="text-muted fs-7 mb-4">Actualiza la contraseña de acceso al panel principal.</p>
+
+                    <form action="{{ url_for('cambiar_password') if 'cambiar_password' in url_for.__globals__ else '#' }}" method="POST">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fs-7 fw-semibold">Contraseña Actual</label>
+                                <input type="password" name="password_actual" class="form-control" placeholder="••••••••" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fs-7 fw-semibold">Nueva Contraseña</label>
+                                <input type="password" name="password_nueva" class="form-control" placeholder="••••••••" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fs-7 fw-semibold">Confirmar Nueva Contraseña</label>
+                                <input type="password" name="password_confirmar" class="form-control" placeholder="••••••••" required>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-warning px-4 py-2 rounded-3 fw-bold">
+                                <i class="bi bi-check-circle me-1"></i> Actualizar Contraseña
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function seleccionarEstilo(estilo) {
+        const input = document.getElementById('inputEstiloVisual');
+        if (input) input.value = estilo;
+
+        const optGlassy = document.getElementById('optGlassy');
+        const optSolido = document.getElementById('optSolido');
+
+        if (estilo === 'glassy') {
+            if (optGlassy) {
+                optGlassy.classList.add('border-success', 'bg-success-subtle');
+                optGlassy.classList.remove('border-secondary', 'bg-light');
+            }
+            if (optSolido) {
+                optSolido.classList.remove('border-success', 'bg-success-subtle');
+                optSolido.classList.add('border', 'bg-light');
+            }
+        } else {
+            if (optSolido) {
+                optSolido.classList.add('border-success', 'bg-success-subtle');
+                optSolido.classList.remove('border', 'bg-light');
+            }
+            if (optGlassy) {
+                optGlassy.classList.remove('border-success', 'bg-success-subtle');
+                optGlassy.classList.add('border', 'bg-light');
+            }
+        }
+
+        if (typeof aplicarEstilo === 'function') {
+            aplicarEstilo(estilo);
+        } else {
+            if (estilo === 'glassy') {
+                document.documentElement.classList.add('estilo-glassy');
+            } else {
+                document.documentElement.classList.remove('estilo-glassy');
+            }
+            localStorage.setItem('estilo_uraba', estilo);
+        }
+    }
+
+    function cambiarFuenteEnVivo(fuente) {
+        const preview = document.getElementById('previewTipografia');
+        if (preview) {
+            preview.style.fontFamily = fuente;
+        }
+        if (typeof aplicarFuente === 'function') {
+            aplicarFuente(fuente);
+        } else {
+            document.documentElement.style.setProperty('--font-family-current', fuente);
+            localStorage.setItem('fuente_uraba', fuente);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const estiloGuardado = localStorage.getItem('estilo_uraba') || 'glassy';
+        seleccionarEstilo(estiloGuardado);
+
+        const select = document.getElementById('selectFuente');
+        const fuenteGuardada = localStorage.getItem('fuente_uraba');
+        if (select && fuenteGuardada) {
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === fuenteGuardada || fuenteGuardada.includes(select.options[i].text.split(' ')[0])) {
+                    select.selectedIndex = i;
+                    cambiarFuenteEnVivo(select.options[i].value);
+                    break;
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

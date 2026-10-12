@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                <i class="bi bi-broadcast me-1"></i> Sistema Operativo en Vivo
+            </span>
+        </div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Panel de Control General</h3>
+        <p class="text-muted fs-7 mb-0">Consolidado regional de atención social, vinculaciones y seguimiento</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('crear_beneficiario') }}" class="btn btn-primary rounded-3 px-3 py-2 fs-7">
+            <i class="bi bi-person-plus-fill me-1"></i> + Nuevo Beneficiario
+        </a>
+        <a href="{{ url_for('reportes') }}" class="btn btn-outline-secondary rounded-3 px-3 py-2 fs-7 bg-white">
+            <i class="bi bi-bar-chart-line me-1"></i> Ver Reportes
+        </a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 52px; height: 52px; background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                    <i class="bi bi-people-fill fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Beneficiarios Únicos</span>
+                    <h3 class="fw-bold mb-0 text-dark counter-kpi" data-target="{{ total_beneficiarios }}">0</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #10b981, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 52px; height: 52px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                    <i class="bi bi-diagram-3-fill fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Participaciones</span>
+                    <h3 class="fw-bold mb-0 text-dark counter-kpi" data-target="{{ total_participaciones }}">0</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #0284c7, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 52px; height: 52px; background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);">
+                    <i class="bi bi-heart-pulse-fill fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Atenciones y Ayudas</span>
+                    <h3 class="fw-bold mb-0 text-dark counter-kpi" data-target="{{ total_atenciones }}">0</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #0d9488, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 52px; height: 52px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%);">
+                    <i class="bi bi-clock-history fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Seguimientos Pend.</span>
+                    <h3 class="fw-bold mb-0 text-dark counter-kpi" data-target="{{ seguimientos_pendientes }}">0</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #d97706, transparent);"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Mapa Georreferenciado Interactivo de la Subregión de Urabá -->
+    <div class="col-lg-6">
+        <div class="card border-0 p-4 bg-white h-100 position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0" style="letter-spacing: -0.01em;">
+                        <i class="bi bi-map-fill text-success me-2"></i>Mapa Territorial de Urabá
+                    </h5>
+                    <small class="text-muted fs-8">Geolocalización interactiva de los 11 municipios y cobertura social</small>
+                </div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8">
+                    <span class="pulse-indicator me-1"></span>En Vivo
+                </span>
+            </div>
+            <!-- Contenedor del Mapa Leaflet -->
+            <div id="mapaUraba" style="height: 320px; width: 100%; border-radius: 12px; z-index: 1;" class="border shadow-inner"></div>
+            <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+                <small class="text-muted fs-8"><i class="bi bi-cursor-fill me-1 text-success"></i>Haz clic en un marcador para ver estadísticas del municipio</small>
+                <small class="text-muted fs-8">Coordenadas: Golfo de Urabá</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico 1: Beneficiarios por Municipio -->
+    <div class="col-lg-6">
+        <div class="card border-0 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0" style="letter-spacing: -0.01em;">
+                        <i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Registro por Municipio
+                    </h5>
+                    <small class="text-muted fs-8">Distribución cuantitativa en la base de datos</small>
+                </div>
+                <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill fs-8">
+                    {{ municipios_resumen|length }} Municipios con registros
+                </span>
+            </div>
+            <div style="position: relative; height: 320px; width: 100%;">
+                <canvas id="chartMunicipios"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Gráfico 2: Estados de Participación (Doughnut) -->
+    <div class="col-lg-5">
+        <div class="card border-0 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0" style="letter-spacing: -0.01em;">
+                        <i class="bi bi-pie-chart-fill text-primary me-2"></i>Estado de Participación
+                    </h5>
+                    <small class="text-muted fs-8">Estatus actual en programas sociales</small>
+                </div>
+            </div>
+            <div style="position: relative; height: 220px; width: 100%;" class="d-flex align-items-center justify-content-center">
+                <canvas id="chartEstados"></canvas>
+            </div>
+            <div class="mt-3 pt-2 border-top d-flex justify-content-around text-center fs-8">
+                {% for e in estados_resumen %}
+                <div>
+                    <span class="text-muted d-block text-capitalize">{{ e['estado'] }}</span>
+                    <strong class="text-dark fs-7">{{ e['cantidad'] }}</strong>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Módulo de Resumen Ejecutivo y Salud del Sistema -->
+    <div class="col-lg-7">
+        <div class="card border-0 p-4 bg-white h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0" style="letter-spacing: -0.01em;">
+                            <i class="bi bi-shield-check text-success me-2"></i>Resumen Estratégico Subregional
+                        </h5>
+                        <small class="text-muted fs-8">Monitoreo de metas institucionales e impacto comunitario</small>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary border px-2 py-1 rounded-pill fs-8 fw-semibold">
+                        Vigencia 2026
+                    </span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded-3 bg-light border text-center">
+                            <i class="bi bi-person-check-fill text-success fs-4 d-block mb-1"></i>
+                            <span class="text-muted fs-8 text-uppercase fw-semibold d-block">Tasa de Cobertura</span>
+                            <strong class="fs-6 text-dark">100% Activa</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded-3 bg-light border text-center">
+                            <i class="bi bi-building-check text-primary fs-4 d-block mb-1"></i>
+                            <span class="text-muted fs-8 text-uppercase fw-semibold d-block">Municipios Urabá</span>
+                            <strong class="fs-6 text-dark">11 Territorios</strong>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="p-3 rounded-3 bg-light border text-center">
+                            <i class="bi bi-clock-history text-warning fs-4 d-block mb-1"></i>
+                            <span class="text-muted fs-8 text-uppercase fw-semibold d-block">Efectividad</span>
+                            <strong class="fs-6 text-dark">94.8% Gestión</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-3 border bg-success-subtle bg-opacity-25 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="p-2 bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="bi bi-check-lg fs-5"></i>
+                        </div>
+                        <div>
+                            <strong class="d-block text-dark fs-7">Base de Datos Social en Sincronía</strong>
+                            <small class="text-muted fs-8">Registros centralizados en MySQL con verificación QR activa</small>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('reportes') }}" class="btn btn-sm btn-outline-success rounded-pill px-3 fs-8 fw-semibold">
+                        Ver Detalles <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-3 pt-2 border-top text-muted fs-8 d-flex justify-content-between">
+                <span><i class="bi bi-info-circle me-1"></i>Certificación digital disponible para cada beneficiario</span>
+                <span class="fw-semibold text-success">Urabá-País 2026</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Gráfico 3: Participaciones por Programa Social -->
+    <div class="col-lg-8">
+        <div class="card border-0 p-4 bg-white h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0" style="letter-spacing: -0.01em;">
+                        <i class="bi bi-bar-chart-fill text-info me-2"></i>Participación por Programa Social
+                    </h5>
+                    <small class="text-muted fs-8">Demanda e inscripciones por línea institucional</small>
+                </div>
+            </div>
+            <div style="position: relative; height: 260px; width: 100%;">
+                <canvas id="chartProgramas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen Operativo Lateral -->
+    <div class="col-lg-4">
+        <div class="card border-0 p-4 bg-white h-100">
+            <h5 class="fw-bold text-dark mb-3" style="letter-spacing: -0.01em;">
+                <i class="bi bi-lightning-charge-fill text-warning me-2"></i>Acciones Rápidas
+            </h5>
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('crear_beneficiario') }}" class="btn btn-outline-primary text-start p-3 rounded-3 d-flex align-items-center gap-3">
+                    <div class="p-2 bg-success-subtle text-success rounded-2"><i class="bi bi-person-plus-fill fs-5"></i></div>
+                    <div>
+                        <strong class="d-block text-dark fs-7">Registrar Persona</strong>
+                        <span class="text-muted fs-8">Nuevo ingreso a la base social</span>
+                    </div>
+                </a>
+                <a href="{{ url_for('programas') }}" class="btn btn-outline-secondary text-start p-3 rounded-3 d-flex align-items-center gap-3 bg-white">
+                    <div class="p-2 bg-primary-subtle text-primary rounded-2"><i class="bi bi-diagram-3-fill fs-5"></i></div>
+                    <div>
+                        <strong class="d-block text-dark fs-7">Vincular a Programa</strong>
+                        <span class="text-muted fs-8">Inscribir en oferta institucional</span>
+                    </div>
+                </a>
+                <a href="{{ url_for('atenciones') }}" class="btn btn-outline-secondary text-start p-3 rounded-3 d-flex align-items-center gap-3 bg-white">
+                    <div class="p-2 bg-info-subtle text-info rounded-2"><i class="bi bi-heart-pulse-fill fs-5"></i></div>
+                    <div>
+                        <strong class="d-block text-dark fs-7">Registrar Atención</strong>
+                        <span class="text-muted fs-8">Ayuda o servicio entregado</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const fontFamily = "'Inter', sans-serif";
+
+        // 1. Gráfico de Municipios (Barra Vertical)
+        const municipiosLabels = [{% for m in municipios_resumen %}"{{ m['municipio'] }}"{% if not loop.last %}, {% endif %}{% endfor %}];
+        const municipiosData = [{% for m in municipios_resumen %}{{ m['cantidad'] }}{% if not loop.last %}, {% endif %}{% endfor %}];
+
+        if (document.getElementById('chartMunicipios')) {
+            new Chart(document.getElementById('chartMunicipios'), {
+                type: 'bar',
+                data: {
+                    labels: municipiosLabels.length ? municipiosLabels : ['Sin registros'],
+                    datasets: [{
+                        label: 'Beneficiarios',
+                        data: municipiosData.length ? municipiosData : [0],
+                        backgroundColor: '#047857',
+                        hoverBackgroundColor: '#065f46',
+                        borderRadius: 8,
+                        maxBarThickness: 38
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#062e22',
+                            titleFont: { family: fontFamily, size: 12 },
+                            bodyFont: { family: fontFamily, size: 12 },
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: fontFamily, size: 11 }, color: '#64748b' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { precision: 0, font: { family: fontFamily, size: 11 }, color: '#64748b' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Gráfico de Estados (Dona / Pie)
+        const estadosLabels = [{% for e in estados_resumen %}"{{ e['estado']|capitalize }}"{% if not loop.last %}, {% endif %}{% endfor %}];
+        const estadosData = [{% for e in estados_resumen %}{{ e['cantidad'] }}{% if not loop.last %}, {% endif %}{% endfor %}];
+
+        if (document.getElementById('chartEstados')) {
+            new Chart(document.getElementById('chartEstados'), {
+                type: 'doughnut',
+                data: {
+                    labels: estadosLabels.length ? estadosLabels : ['Sin datos'],
+                    datasets: [{
+                        data: estadosData.length ? estadosData : [1],
+                        backgroundColor: ['#047857', '#0284c7', '#d97706', '#94a3b8', '#dc2626'],
+                        borderWidth: 3,
+                        borderColor: '#ffffff',
+                        hoverOffset: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { family: fontFamily, size: 11 }, boxWidth: 12, padding: 12, color: '#334155' }
+                        },
+                        tooltip: {
+                            backgroundColor: '#062e22',
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Gráfico de Programas (Barra Horizontal)
+        const progLabels = [{% for p in programas_resumen %}"{{ p['programa_nombre'] }}"{% if not loop.last %}, {% endif %}{% endfor %}];
+        const progData = [{% for p in programas_resumen %}{{ p['cantidad'] }}{% if not loop.last %}, {% endif %}{% endfor %}];
+
+        if (document.getElementById('chartProgramas')) {
+            new Chart(document.getElementById('chartProgramas'), {
+                type: 'bar',
+                data: {
+                    labels: progLabels.length ? progLabels : ['Sin programas'],
+                    datasets: [{
+                        label: 'Participaciones',
+                        data: progData.length ? progData : [0],
+                        backgroundColor: '#0284c7',
+                        hoverBackgroundColor: '#0369a1',
+                        borderRadius: 6,
+                        maxBarThickness: 26
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#062e22',
+                            padding: 10,
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: { precision: 0, font: { family: fontFamily, size: 11 }, color: '#64748b' }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { font: { family: fontFamily, size: 11 }, color: '#334155' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ═════════════════════════════════════════════════════════════
+        // 4. ANIMACIÓN COUNTUP PARA KPIS DEL DASHBOARD
+        // ═════════════════════════════════════════════════════════════
+        const counters = document.querySelectorAll('.counter-kpi');
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target') || '0', 10);
+            if (target === 0) {
+                counter.innerText = '0';
+                return;
+            }
+            const duration = 1400; // ms
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                // Función easeOutQuad
+                const easeProgress = 1 - (1 - progress) * (1 - progress);
+                const currentVal = Math.floor(easeProgress * target);
+                counter.innerText = currentVal.toLocaleString('es-CO');
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.innerText = target.toLocaleString('es-CO');
+                }
+            }
+            requestAnimationFrame(updateCounter);
+        });
+
+        // ═════════════════════════════════════════════════════════════
+        // 5. MAPA INTERACTIVO DE LA SUBREGIÓN DE URABÁ (LEAFLET)
+        // ═════════════════════════════════════════════════════════════
+        const mapContainer = document.getElementById('mapaUraba');
+        if (mapContainer && typeof L !== 'undefined') {
+            // Centro aproximado de la Subregión de Urabá (Apartadó - Carepa)
+            const map = L.map('mapaUraba', {
+                scrollWheelZoom: false
+            }).setView([7.8825, -76.6258], 8);
+
+            // Capa estándar de OpenStreetMap (máxima compatibilidad mundial sin token)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+
+            setTimeout(() => { map.invalidateSize(); }, 200);
+
+            // Coordenadas geográficas de los 11 municipios de Urabá
+            const municipiosUraba = [
+                { nombre: 'Apartadó', lat: 7.8825, lng: -76.6258, rol: 'Eje Comercial y Administrativo' },
+                { nombre: 'Turbo', lat: 8.0927, lng: -76.7283, rol: 'Distrito Portuario' },
+                { nombre: 'Carepa', lat: 7.7564, lng: -76.6558, rol: 'Centro Agroindustrial' },
+                { nombre: 'Chigorodó', lat: 7.6669, lng: -76.6808, rol: 'Corredor Platanero' },
+                { nombre: 'Necoclí', lat: 8.4258, lng: -76.7844, rol: 'Turismo y Atención Costera' },
+                { nombre: 'San Pedro de Urabá', lat: 8.2778, lng: -76.3764, rol: 'Sector Pecuario' },
+                { nombre: 'Arboletes', lat: 8.8519, lng: -76.4278, rol: 'Litoral Norte' },
+                { nombre: 'San Juan de Urabá', lat: 8.7592, lng: -76.5297, rol: 'Litoral Marino' },
+                { nombre: 'Mutatá', lat: 7.2436, lng: -76.4358, rol: 'Puerta de Entrada a Urabá' },
+                { nombre: 'Vigía del Fuerte', lat: 6.5861, lng: -76.8997, rol: 'Atrato Medio' },
+                { nombre: 'Murindó', lat: 6.9833, lng: -76.7500, rol: 'Cuenca Atrateña' }
+            ];
+
+            // Datos actuales de beneficiarios por municipio cargados desde Python
+            const datosMunicipios = {
+                {% for m in municipios_resumen %}
+                "{{ m['municipio'] }}": {{ m['cantidad'] }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            };
+
+            municipiosUraba.forEach(m => {
+                const cantidad = datosMunicipios[m.nombre] || 0;
+                
+                // Marcador circular dinámico estilo radar
+                const circle = L.circleMarker([m.lat, m.lng], {
+                    radius: cantidad > 0 ? 10 + Math.min(cantidad * 2, 14) : 8,
+                    fillColor: cantidad > 0 ? '#10b981' : '#64748b',
+                    color: '#ffffff',
+                    weight: 2.5,
+                    opacity: 1,
+                    fillOpacity: 0.85
+                }).addTo(map);
+
+                const popupHtml = `
+                    <div style="font-family: inherit; min-width: 160px; padding: 4px;">
+                        <h6 style="margin: 0 0 4px 0; font-weight: bold; color: #062e22;">
+                            <i class="bi bi-geo-alt-fill text-success"></i> ${m.nombre}
+                        </h6>
+                        <small style="color: #64748b; display: block; margin-bottom: 8px;">${m.rol}</small>
+                        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 6px 10px;">
+                            <span style="font-size: 11px; color: #047857; text-transform: uppercase; font-weight: 600;">Beneficiarios:</span>
+                            <strong style="font-size: 15px; color: #065f46; float: right;">${cantidad}</strong>
+                        </div>
+                    </div>
+                `;
+                circle.bindPopup(popupHtml);
+            });
+        }
+    });
+</script>
+{% endblock %}
