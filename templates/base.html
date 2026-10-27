@@ -16,25 +16,23 @@
                 document.documentElement.classList.remove('tema-oscuro');
             }
 
-            const estiloGuardado = localStorage.getItem('estilo_uraba') || 'glassy';
-            if (estiloGuardado === 'glassy') {
-                document.documentElement.classList.add('estilo-glassy');
-            } else {
-                document.documentElement.classList.remove('estilo-glassy');
-            }
+            const colorGuardado = localStorage.getItem('color_tema_uraba') || '{{ color_tema_actual or "verde" }}';
+            document.documentElement.setAttribute('data-color-tema', colorGuardado);
 
             const fuenteGuardada = localStorage.getItem('fuente_uraba') || '{{ fuente_actual or "Inter" }}';
             document.documentElement.style.setProperty('--font-family-current', fuenteGuardada);
         })();
     </script>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
 
     <style>
         :root {
@@ -229,11 +227,49 @@
             cursor: pointer !important;
         }
 
+        /* Modern Ultra-Thin Scrollbars */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 9999px;
+            border: 2px solid #f8fafc;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #059669;
+        }
+
+        /* Pulsing indicator */
+        .pulse-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-ring 2s infinite cubic-bezier(0.66, 0, 0, 1);
+            vertical-align: middle;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
         .card {
             border: 1px solid var(--card-border) !important;
             border-radius: var(--radius-main) !important;
             box-shadow: var(--card-shadow) !important;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease !important;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px -6px rgba(6, 46, 34, 0.09), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
         }
 
         .table {
@@ -341,124 +377,187 @@
         }
 
         /* ═════════════════════════════════════════════════════════════
-           ESTILO GLASSY (GLASSMORPHISM PREMIER & FROSTED GLASS)
+           PALETAS DE COLOR DINÁMICAS (PERSONALIZACIÓN EN TIEMPO REAL)
            ═════════════════════════════════════════════════════════════ */
-        html.estilo-glassy body {
-            background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.06) 0%, transparent 40%),
-                        linear-gradient(135deg, #f0fdf4 0%, #f8fafc 50%, #ecfdf5 100%) !important;
-            background-attachment: fixed !important;
+        html[data-color-tema="verde"] {
+            --primary-color: #047857;
+            --primary-hover: #065f46;
+            --primary-subtle: #d1fae5;
+            --accent-color: #10b981;
+            --sidebar-gradient: linear-gradient(180deg, #062e22 0%, #031c15 100%);
+            --sidebar-active: #059669;
+        }
+        html[data-color-tema="azul"] {
+            --primary-color: #0284c7;
+            --primary-hover: #0369a1;
+            --primary-subtle: #e0f2fe;
+            --accent-color: #38bdf8;
+            --sidebar-gradient: linear-gradient(180deg, #082f49 0%, #031726 100%);
+            --sidebar-active: #0284c7;
+        }
+        html[data-color-tema="purpura"] {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-subtle: #e0e7ff;
+            --accent-color: #818cf8;
+            --sidebar-gradient: linear-gradient(180deg, #1e1b4b 0%, #0f0e26 100%);
+            --sidebar-active: #6366f1;
+        }
+        html[data-color-tema="rojo"] {
+            --primary-color: #be123c;
+            --primary-hover: #9f1239;
+            --primary-subtle: #ffe4e6;
+            --accent-color: #f43f5e;
+            --sidebar-gradient: linear-gradient(180deg, #3f0713 0%, #20040a 100%);
+            --sidebar-active: #be123c;
+        }
+        html[data-color-tema="ambar"] {
+            --primary-color: #b45309;
+            --primary-hover: #92400e;
+            --primary-subtle: #fef3c7;
+            --accent-color: #f59e0b;
+            --sidebar-gradient: linear-gradient(180deg, #451a03 0%, #240c01 100%);
+            --sidebar-active: #b45309;
+        }
+        html[data-color-tema="grafito"] {
+            --primary-color: #334155;
+            --primary-hover: #1e293b;
+            --primary-subtle: #e2e8f0;
+            --accent-color: #64748b;
+            --sidebar-gradient: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            --sidebar-active: #334155;
         }
 
-        html.estilo-glassy .sidebar {
-            background: linear-gradient(180deg, rgba(6, 46, 34, 0.92) 0%, rgba(3, 28, 21, 0.95) 100%) !important;
-            backdrop-filter: blur(16px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
-            box-shadow: 4px 0 30px rgba(0, 0, 0, 0.1) !important;
+        /* Enlace dinámico con variables de color */
+        .sidebar {
+            background: var(--sidebar-gradient) !important;
+        }
+        .sidebar .brand-badge {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--sidebar-active) 100%) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+        }
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--sidebar-active) 0%, var(--primary-color) 100%) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--sidebar-active) 0%, var(--primary-color) 100%) !important;
+            border-color: var(--primary-color) !important;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%) !important;
+            border-color: var(--primary-hover) !important;
+        }
+        .btn-outline-primary {
+            color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+        .btn-outline-primary:hover {
+            background: var(--primary-color) !important;
+            color: #ffffff !important;
+        }
+        .text-primary, .text-success {
+            color: var(--primary-color) !important;
+        }
+        .bg-primary, .bg-success {
+            background-color: var(--primary-color) !important;
+        }
+        .bg-primary-subtle, .bg-success-subtle {
+            background-color: var(--primary-subtle) !important;
+            color: var(--primary-hover) !important;
+            border-color: var(--primary-subtle) !important;
+        }
+        .pulse-indicator {
+            background-color: var(--accent-color) !important;
+        }
+        .border-success, .border-primary {
+            border-color: var(--primary-color) !important;
         }
 
-        html.estilo-glassy .card,
-        html.estilo-glassy .modal-content,
-        html.estilo-glassy .navbar,
-        html.estilo-glassy #chatWidget {
-            background: rgba(255, 255, 255, 0.72) !important;
-            backdrop-filter: blur(16px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.6) !important;
-            box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.08), 0 2px 8px 0 rgba(0, 0, 0, 0.04) !important;
+        /* Utilidades temáticas universales */
+        .hero-dashboard-banner {
+            background: var(--sidebar-gradient) !important;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35) !important;
         }
 
-        html.estilo-glassy .card:hover {
-            background: rgba(255, 255, 255, 0.85) !important;
-            border-color: rgba(16, 185, 129, 0.4) !important;
-            box-shadow: 0 16px 36px 0 rgba(6, 46, 34, 0.12), 0 4px 12px 0 rgba(0, 0, 0, 0.05) !important;
-            transform: translateY(-4px);
+        .avatar-theme,
+        [style*="linear-gradient(135deg, #059669 0%, #047857 100%)"],
+        [style*="linear-gradient(135deg, #10b981 0%, #047857 100%)"] {
+            background: linear-gradient(135deg, var(--sidebar-active) 0%, var(--primary-color) 100%) !important;
+            color: #ffffff !important;
         }
 
-        html.estilo-glassy .table {
-            --bs-table-bg: transparent !important;
-        }
-        html.estilo-glassy .table thead th {
-            background: rgba(241, 245, 249, 0.65) !important;
-            backdrop-filter: blur(8px) !important;
-            border-bottom: 2px solid rgba(16, 185, 129, 0.15) !important;
-        }
-        html.estilo-glassy .table tbody tr:hover td {
-            background: rgba(16, 185, 129, 0.04) !important;
+        .badge-code-theme,
+        [style*="color: #047857"][style*="background: rgba(4, 120, 87"] {
+            background: var(--primary-subtle) !important;
+            color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
         }
 
-        html.estilo-glassy .form-control,
-        html.estilo-glassy .form-select {
-            background: rgba(255, 255, 255, 0.65) !important;
-            backdrop-filter: blur(8px) !important;
-            -webkit-backdrop-filter: blur(8px) !important;
-            border: 1px solid rgba(203, 213, 225, 0.8) !important;
+        .bar-kpi-theme,
+        [style*="linear-gradient(90deg, #10b981"],
+        [style*="linear-gradient(90deg, #059669"] {
+            background: linear-gradient(90deg, var(--accent-color), transparent) !important;
+        }
+
+        .copyable-item {
             transition: all 0.2s ease;
         }
-        html.estilo-glassy .form-control:focus,
-        html.estilo-glassy .form-select:focus {
-            background: rgba(255, 255, 255, 0.95) !important;
-            border-color: #10b981 !important;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18) !important;
+        .copyable-item:hover {
+            opacity: 0.85;
+            text-decoration: underline;
         }
-
-        html.estilo-glassy .badge {
-            backdrop-filter: blur(6px) !important;
-            -webkit-backdrop-filter: blur(6px) !important;
-        }
-
-        /* Glassy en Modo Oscuro */
-        html.estilo-glassy.tema-oscuro body,
-        html.estilo-glassy[data-bs-theme="dark"] body {
-            background: radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.12) 0%, transparent 40%),
-                        radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.1) 0%, transparent 40%),
-                        linear-gradient(135deg, #061510 0%, #091310 50%, #0b1a15 100%) !important;
-            background-attachment: fixed !important;
-        }
-
-        html.estilo-glassy.tema-oscuro .card,
-        html.estilo-glassy.tema-oscuro .modal-content,
-        html.estilo-glassy.tema-oscuro #chatWidget,
-        html.estilo-glassy[data-bs-theme="dark"] .card,
-        html.estilo-glassy[data-bs-theme="dark"] .modal-content,
-        html.estilo-glassy[data-bs-theme="dark"] #chatWidget {
-            background: rgba(16, 34, 28, 0.65) !important;
-            backdrop-filter: blur(20px) saturate(200%) !important;
-            -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35) !important;
-        }
-
-        html.estilo-glassy.tema-oscuro .card:hover,
-        html.estilo-glassy[data-bs-theme="dark"] .card:hover {
-            background: rgba(16, 34, 28, 0.8) !important;
-            border-color: rgba(16, 185, 129, 0.3) !important;
-            box-shadow: 0 16px 36px 0 rgba(0, 0, 0, 0.5) !important;
-        }
-
-        html.estilo-glassy.tema-oscuro .form-control,
-        html.estilo-glassy[data-bs-theme="dark"] .form-control {
-            background: rgba(11, 25, 20, 0.7) !important;
-            backdrop-filter: blur(8px) !important;
-            border-color: rgba(255, 255, 255, 0.12) !important;
-            color: #ffffff !important;
-        }
-
-        html.estilo-glassy.tema-oscuro .form-select,
-        html.estilo-glassy[data-bs-theme="dark"] .form-select {
-            background-color: rgba(11, 25, 20, 0.8) !important;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2310b981' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
-            background-repeat: no-repeat !important;
-            background-position: right 1rem center !important;
-            background-size: 16px 12px !important;
-            backdrop-filter: blur(8px) !important;
-            border-color: rgba(255, 255, 255, 0.12) !important;
-            color: #ffffff !important;
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .sidebar, #btnToggleDark, .toast-container, .topbar-card, .topbar-wrapper, .btn, form .btn, .d-print-none, #chatWidget, #chatToggleBtn, #btnOpenChat, .modal, .modal-backdrop {
+                display: none !important;
+            }
+            body {
+                height: auto !important;
+                overflow: visible !important;
+                background: #ffffff !important;
+                color: #0f172a !important;
+            }
+            .main-content {
+                padding: 12px 20px !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                page-break-inside: avoid;
+            }
+            .table {
+                border-color: #cbd5e1 !important;
+            }
         }
 
         .modal-backdrop { z-index: 1050; }
         .modal { z-index: 1055; }
+
+        /* ======================================================
+           HERO BANNER - NUNCA se pisa. No usa clase .card
+           ====================================================== */
+        .hero-dashboard-banner {
+            background: linear-gradient(135deg, #062e22 0%, #064e3b 55%, #047857 100%) !important;
+            color: #ffffff !important;
+        }
+        .hero-dashboard-banner h1,
+        .hero-dashboard-banner h2,
+        .hero-dashboard-banner h3,
+        .hero-dashboard-banner h4,
+        .hero-dashboard-banner p,
+        .hero-dashboard-banner small,
+        .hero-dashboard-banner strong {
+            color: #ffffff !important;
+        }
+        .hero-dashboard-banner .text-white-50 {
+            color: rgba(255,255,255,0.62) !important;
+        }
     </style>
 </head>
 <body class="d-flex">
@@ -505,6 +604,19 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url_for('alertas') }}" class="nav-link {% if request.endpoint == 'alertas' %}active{% endif %}">
+                        <i class="bi bi-exclamation-octagon-fill text-danger"></i> Alertas SAT
+                        {% if notif_count and notif_count > 0 %}
+                        <span class="badge bg-danger rounded-pill ms-auto fs-8">{{ notif_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('agenda_citas') }}" class="nav-link {% if request.endpoint == 'agenda_citas' %}active{% endif %}">
+                        <i class="bi bi-calendar-event-fill"></i> Agenda de Citas
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url_for('reportes') }}" class="nav-link {% if request.endpoint == 'reportes' %}active{% endif %}">
                         <i class="bi bi-bar-chart-line-fill"></i> Reportes
                     </a>
@@ -515,6 +627,11 @@
                     </a>
                 </li>
                 {% if es_admin %}
+                <li class="nav-item">
+                    <a href="{{ url_for('auditoria') }}" class="nav-link {% if request.endpoint == 'auditoria' %}active{% endif %}">
+                        <i class="bi bi-shield-lock-fill"></i> Auditoría
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{{ url_for('listar_usuarios') }}" class="nav-link {% if request.endpoint == 'listar_usuarios' %}active{% endif %}">
                         <i class="bi bi-people-fill"></i> Usuarios
@@ -532,7 +649,7 @@
         <div class="px-2 pt-3 border-top border-secondary border-opacity-25">
             <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="background: rgba(255, 255, 255, 0.05);">
                 <div class="d-flex align-items-center gap-2">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 36px; height: 36px; background: linear-gradient(135deg, #10b981 0%, #047857 100%); font-size: 0.85rem;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--sidebar-active) 0%, var(--primary-color) 100%); font-size: 0.85rem;">
                         {{ (usuario_actual[0] if usuario_actual else 'U') | upper }}
                     </div>
                     <div>
@@ -552,15 +669,76 @@
     </aside>
 
     <main class="main-content">
-        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-            <span class="text-muted fs-7"><i class="bi bi-house-door me-1"></i> Módulo Actual: <strong class="text-capitalize">{{ request.endpoint.replace('_', ' ') if request.endpoint else '' }}</strong></span>
+        <div class="topbar-wrapper d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3 pb-3 border-bottom border-light-subtle">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 fs-7">
+                        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}" class="text-decoration-none text-muted"><i class="bi bi-house-door me-1"></i>Inicio</a></li>
+                        <li class="breadcrumb-item active text-capitalize fw-semibold text-dark" aria-current="page">{{ request.endpoint.replace('_', ' ') if request.endpoint else 'Sistema' }}</li>
+                    </ol>
+                </nav>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8 d-none d-md-inline-flex align-items-center gap-1">
+                    <span class="pulse-indicator"></span> Sistema Activo
+                </span>
+            </div>
             
-            <!-- Botón Buscador Global Spotlight (Ctrl + K) -->
-            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1 d-flex align-items-center gap-2 shadow-sm text-muted" onclick="abrirSpotlight()" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);">
-                <i class="bi bi-search text-success"></i>
-                <span class="fs-8">Buscar beneficiario o módulo...</span>
-                <kbd class="bg-dark text-white border-0 px-2 py-0 rounded fs-8" style="font-size: 0.7rem;">Ctrl K</kbd>
-            </button>
+            <div class="d-flex align-items-center gap-2">
+                <!-- Centro de Notificaciones en Vivo -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light border rounded-circle p-0 d-flex align-items-center justify-content-center position-relative shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width: 36px; height: 36px; background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);" title="Centro de Notificaciones">
+                        <i class="bi bi-bell text-secondary fs-6"></i>
+                        {% if notif_count and notif_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; transform: translate(-25%, -25%) !important;">
+                            {{ notif_count }}
+                        </span>
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-3 fs-8" style="min-width: 310px; z-index: 1095;">
+                        <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
+                            <strong class="text-dark fs-7"><i class="bi bi-bell-fill text-warning me-1"></i> Notificaciones Activas</strong>
+                            <span class="badge bg-danger-subtle text-danger rounded-pill">{{ notif_count }} alertas</span>
+                        </div>
+                        {% if notif_segs_pendientes and notif_segs_pendientes > 0 %}
+                        <li class="mb-2">
+                            <a class="dropdown-item p-2 rounded-3 bg-light text-wrap d-flex align-items-start gap-2" href="{{ url_for('seguimientos') }}">
+                                <i class="bi bi-clock-history text-warning fs-6 mt-1"></i>
+                                <div>
+                                    <strong class="text-dark d-block">Seguimientos Pendientes</strong>
+                                    <span class="text-muted fs-8">{{ notif_segs_pendientes }} casos requieren contacto o visita.</span>
+                                </div>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% if notif_sin_programa and notif_sin_programa > 0 %}
+                        <li class="mb-2">
+                            <a class="dropdown-item p-2 rounded-3 bg-light text-wrap d-flex align-items-start gap-2" href="{{ url_for('alertas') }}">
+                                <i class="bi bi-shield-exclamation text-danger fs-6 mt-1"></i>
+                                <div>
+                                    <strong class="text-dark d-block">Casos Sin Cobertura</strong>
+                                    <span class="text-muted fs-8">{{ notif_sin_programa }} beneficiarios sin programa social.</span>
+                                </div>
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a class="dropdown-item text-center text-primary fw-semibold pt-2 border-top" href="{{ url_for('alertas') }}">
+                                <i class="bi bi-speedometer me-1"></i> Ir al Sistema de Alertas (SAT)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Botón Verificador Público QR -->
+                <a href="{{ url_for('verificar_certificado_publico') }}" target="_blank" class="btn btn-sm btn-outline-success border rounded-pill px-3 py-1 d-flex align-items-center gap-1 shadow-sm fs-8 text-decoration-none" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);" title="Portal oficial de verificación pública con QR">
+                    <i class="bi bi-qr-code-scan text-success"></i>
+                    <span class="d-none d-sm-inline fw-semibold">Verificador QR</span>
+                </a>
+                <!-- Botón Buscador Global Spotlight (Ctrl + K) -->
+                <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1 d-flex align-items-center gap-2 shadow-sm text-muted" onclick="abrirSpotlight()" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);">
+                    <i class="bi bi-search text-success"></i>
+                    <span class="fs-8">Buscar beneficiario o acción...</span>
+                    <kbd class="bg-dark text-white border-0 px-2 py-0 rounded fs-8" style="font-size: 0.7rem;">Ctrl K</kbd>
+                </button>
+            </div>
         </div>
 
         <!-- Notificaciones Flotantes Toast -->
@@ -709,17 +887,13 @@
             aplicarFuente(fuenteActiva);
         }
 
-        function aplicarEstilo(estilo) {
-            if (estilo === 'glassy') {
-                document.documentElement.classList.add('estilo-glassy');
-            } else {
-                document.documentElement.classList.remove('estilo-glassy');
-            }
-            localStorage.setItem('estilo_uraba', estilo);
+        function aplicarColorTema(color) {
+            document.documentElement.setAttribute('data-color-tema', color);
+            localStorage.setItem('color_tema_uraba', color);
         }
 
-        const estiloActivo = localStorage.getItem('estilo_uraba') || 'glassy';
-        aplicarEstilo(estiloActivo);
+        const colorActivo = localStorage.getItem('color_tema_uraba') || '{{ color_tema_actual or "verde" }}';
+        aplicarColorTema(colorActivo);
 
         const btnToggleDark = document.getElementById('btnToggleDark');
         const iconModo = document.getElementById('iconModo');
@@ -863,6 +1037,317 @@
                 }, 220);
             });
         }
+
+        // Auto-ocultar toasts después de 4.5s
+        document.querySelectorAll('.toast.show').forEach(t => {
+            setTimeout(() => {
+                t.style.transition = 'opacity 0.5s ease';
+                t.style.opacity = '0';
+                setTimeout(() => t.remove(), 500);
+            }, 4500);
+        });
+
+        // Copiar texto al portapapeles con feedback visual
+        function copiarTexto(texto, el) {
+            navigator.clipboard.writeText(texto).then(() => {
+                const original = el.innerHTML;
+                el.innerHTML = '<i class="bi bi-check-lg text-success"></i> Copiado';
+                setTimeout(() => { el.innerHTML = original; }, 1500);
+            }).catch(() => {
+                // Fallback for older browsers
+                const ta = document.createElement('textarea');
+                ta.value = texto;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            });
+        }
     </script>
+
+    {% if session.get('usuario') %}
+    <!-- Modal de Seguridad: Advertencia de Inactividad (OWASP Control) -->
+    <div class="modal fade" id="modalInactividad" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" style="z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-0 bg-warning text-dark py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-exclamation fs-4"></i>
+                        <h5 class="modal-title fw-bold mb-0">Advertencia de Inactividad</h5>
+                    </div>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div class="rounded-circle bg-warning-subtle text-warning d-inline-flex align-items-center justify-content-center p-3 mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-hourglass-split fs-2"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-2">Tu sesión está a punto de expirar</h6>
+                    <p class="text-muted fs-7 mb-3">
+                        Por motivos de seguridad institucional y protección de datos confidenciales (Ley de Habeas Data y directrices de seguridad OWASP), tu sesión se cerrará automáticamente en:
+                    </p>
+                    <div class="display-5 fw-bold text-danger mb-2" id="contadorInactividadSegundos">60</div>
+                    <p class="text-muted fs-8 mb-0">segundos restantes de inactividad</p>
+                </div>
+                <div class="modal-footer border-0 bg-light p-3 d-flex justify-content-between">
+                    <a href="{{ url_for('logout', razon='inactividad') }}" class="btn btn-outline-danger rounded-3 fs-7">
+                        <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión Ahora
+                    </a>
+                    <button type="button" class="btn btn-primary rounded-3 fs-7 fw-semibold" id="btnMantenerSesion">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Continuar Sesión Activa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Control de Seguridad OWASP: Cierre de Sesión por Inactividad
+        (function() {
+            const TIEMPO_INACTIVIDAD_MS = 14 * 60 * 1000; // 14 minutos
+            let tiempoRestanteSegundos = 60;
+            let timerInactividad = null;
+            let timerCountdown = null;
+            let modalElement = document.getElementById('modalInactividad');
+            let modalBs = null;
+            let modalAbierto = false;
+
+            function iniciarTimerInactividad() {
+                if (timerInactividad) clearTimeout(timerInactividad);
+                timerInactividad = setTimeout(mostrarModalInactividad, TIEMPO_INACTIVIDAD_MS);
+            }
+
+            function mostrarModalInactividad() {
+                if (!modalElement) return;
+                modalAbierto = true;
+                if (!modalBs) {
+                    modalBs = new bootstrap.Modal(modalElement, { backdrop: 'static', keyboard: false });
+                }
+                modalBs.show();
+                tiempoRestanteSegundos = 60;
+                const elContador = document.getElementById('contadorInactividadSegundos');
+                if (elContador) elContador.innerText = tiempoRestanteSegundos;
+
+                timerCountdown = setInterval(function() {
+                    tiempoRestanteSegundos--;
+                    if (elContador) elContador.innerText = tiempoRestanteSegundos;
+                    if (tiempoRestanteSegundos <= 0) {
+                        clearInterval(timerCountdown);
+                        window.location.href = "{{ url_for('logout', razon='inactividad') }}";
+                    }
+                }, 1000);
+            }
+
+            function reiniciarPorActividad() {
+                if (modalAbierto) return;
+                iniciarTimerInactividad();
+            }
+
+            ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+                window.addEventListener(evt, reiniciarPorActividad, { passive: true });
+            });
+
+            const btnMantener = document.getElementById('btnMantenerSesion');
+            if (btnMantener) {
+                btnMantener.addEventListener('click', function() {
+                    fetch("{{ url_for('api_mantener_sesion') }}", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(res => res.json()).then(data => {
+                        if (timerCountdown) clearInterval(timerCountdown);
+                        modalAbierto = false;
+                        if (modalBs) modalBs.hide();
+                        iniciarTimerInactividad();
+                    }).catch(() => {
+                        if (timerCountdown) clearInterval(timerCountdown);
+                        modalAbierto = false;
+                        if (modalBs) modalBs.hide();
+                        iniciarTimerInactividad();
+                    });
+                });
+            }
+
+            iniciarTimerInactividad();
+        })();
+    </script>
+    {% endif %}
+
+
+
+<!-- ====================================================================
+     MODAL INSTITUCIONAL: CARNET DIGITAL DE BENEFICIARIO (URABÁ-PAÍS 2026)
+     ==================================================================== -->
+<div class="modal fade" id="modalCarnetBeneficiario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 580px;">
+        <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden" style="background: #f1f5f9;">
+            <!-- Barra superior del modal -->
+            <div class="modal-header border-0 bg-dark text-white p-3 px-4 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person-badge-fill text-success fs-5"></i>
+                    <h6 class="modal-title fw-bold mb-0 text-white">Credencial Oficial de Beneficiario</h6>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 fs-8" onclick="imprimirCarnetPVC()">
+                        <i class="bi bi-printer-fill me-1"></i> Imprimir Carnet
+                    </button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+            </div>
+
+            <!-- Cuerpo del Modal: Carnet Físico PVC -->
+            <div class="modal-body p-4 d-flex flex-column align-items-center">
+                <!-- Tarjeta Frontal PVC -->
+                <div id="carnetImprimible" class="carnet-pvc shadow-lg rounded-4 overflow-hidden position-relative text-white" style="width: 100%; max-width: 500px; height: 300px; background: linear-gradient(135deg, #04241b 0%, #064e3b 55%, #022c22 100%); border: 1px solid rgba(255,255,255,0.2); font-family: 'Inter', sans-serif;">
+                    <!-- Cinta tricolor Colombia -->
+                    <div style="height: 5px; width: 100%; background: linear-gradient(to right, #FCD116 50%, #003893 50%, #003893 75%, #CE1126 75%);"></div>
+                    
+                    <!-- Membrete institucional -->
+                    <div class="px-3 pt-2 pb-1 d-flex justify-content-between align-items-center border-bottom border-white border-opacity-15">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center p-1 shadow-sm" style="width: 32px; height: 32px;">
+                                <i class="bi bi-shield-fill-check text-success fs-6"></i>
+                            </div>
+                            <div>
+                                <strong class="d-block text-white" style="font-size: 0.72rem; letter-spacing: 0.05em; font-family: 'Cinzel', serif;">REPÚBLICA DE COLOMBIA &bull; SUBREGIÓN DE URABÁ</strong>
+                                <small class="text-white-50 d-block" style="font-size: 0.62rem;">SISTEMA INTEGRADO DE FOCALIZACIÓN SOCIAL 2026</small>
+                            </div>
+                        </div>
+                        <span class="badge bg-warning text-dark font-monospace fw-bold" style="font-size: 0.65rem;" id="carnetBadgeVigencia">VIGENCIA 2026</span>
+                    </div>
+
+                    <!-- Cuerpo de la Tarjeta -->
+                    <div class="p-3 d-flex gap-3 align-items-center">
+                        <!-- Foto / Avatar del Beneficiario con Chip de Seguridad -->
+                        <div class="d-flex flex-column align-items-center flex-shrink-0">
+                            <div class="position-relative">
+                                <div id="carnetAvatarBox" class="rounded-3 border border-2 border-warning shadow d-flex align-items-center justify-content-center text-white fw-bold" style="width: 95px; height: 110px; background: linear-gradient(135deg, #059669 0%, #047857 100%); font-size: 2.2rem;">
+                                    <span id="carnetIniciales">B</span>
+                                </div>
+                                <!-- Chip holográfico simulado -->
+                                <div class="position-absolute bottom-0 start-0 m-1 rounded px-1" style="background: linear-gradient(135deg, #fcd34d 0%, #d97706 100%); border: 1px solid #78350f; font-size: 0.5rem; color: #78350f; font-weight: bold;">
+                                    CHIP
+                                </div>
+                            </div>
+                            <span class="badge bg-dark bg-opacity-75 font-monospace text-warning mt-2 px-2 py-0 border border-secondary" style="font-size: 0.65rem;" id="carnetCodigoBox">BEN-0000</span>
+                        </div>
+
+                        <!-- Datos del Beneficiario -->
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <h5 class="fw-bold text-white mb-1 text-truncate" id="carnetNombreCompleto" style="font-size: 1.05rem; font-family: 'Outfit', sans-serif;">Nombre del Beneficiario</h5>
+                            
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <span class="text-white-50" style="font-size: 0.72rem;" id="carnetTipoDocLabel">CC:</span>
+                                <strong class="text-warning font-monospace" style="font-size: 0.85rem;" id="carnetNumDocBox">1000000000</strong>
+                            </div>
+
+                            <div class="text-white-50 mb-1" style="font-size: 0.72rem;">
+                                <span>Municipio:</span> <strong class="text-white" id="carnetMunBox">Apartadó</strong>
+                            </div>
+
+                            <div class="text-white-50 mb-1" style="font-size: 0.72rem;">
+                                <span>Condición:</span> <strong class="text-white" id="carnetCondBox">Víctima del Conflicto</strong>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <span class="badge rounded-pill px-2 py-1 fw-bold" id="carnetIVSBadge" style="font-size: 0.68rem; background: #ef4444;">IVS: 85 pts (CRÍTICO)</span>
+                            </div>
+                        </div>
+
+                        <!-- Código QR Oficial Verificable -->
+                        <div class="d-flex flex-column align-items-center flex-shrink-0 text-center ps-1">
+                            <div class="bg-white p-1 rounded-3 shadow-sm">
+                                <img id="carnetQRImg" src="" alt="QR" style="width: 78px; height: 78px; display: block;">
+                            </div>
+                            <small class="text-white-50 mt-1 d-block" style="font-size: 0.55rem;">Escanear para<br>Validación</small>
+                        </div>
+                    </div>
+
+                    <!-- Footer de la Tarjeta con Microtexto de Seguridad -->
+                    <div class="position-absolute bottom-0 start-0 w-100 px-3 py-1 bg-dark bg-opacity-60 d-flex justify-content-between align-items-center border-top border-white border-opacity-10" style="font-size: 0.6rem;">
+                        <span class="text-white-50"><i class="bi bi-shield-lock-fill text-warning me-1"></i> Documento Social Oficial Intransferible</span>
+                        <span class="text-white-50">Ley 1581 Habeas Data</span>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 text-muted fs-8">
+                    <i class="bi bi-info-circle me-1"></i> Este carnet cuenta con código QR único para validación inmediata en operativos y entregas de ayudas.
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="modal-footer border-0 bg-white p-3 px-4 d-flex justify-content-between">
+                <span class="text-muted fs-8">Formato estándar de credencial PVC (85mm x 54mm)</span>
+                <button type="button" class="btn btn-secondary rounded-3 fs-8" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #carnetImprimible, #carnetImprimible * {
+        visibility: visible !important;
+    }
+    #carnetImprimible {
+        position: fixed !important;
+        left: 20px !important;
+        top: 20px !important;
+        width: 85mm !important;
+        height: 54mm !important;
+        max-width: 85mm !important;
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+</style>
+
+<script>
+function abrirCarnetBeneficiario(nombre, tipoDoc, numDoc, codigo, municipio, condicion, score, nivel, fechaNac) {
+    document.getElementById('carnetNombreCompleto').textContent = nombre || 'Beneficiario';
+    document.getElementById('carnetTipoDocLabel').textContent = (tipoDoc || 'CC') + ':';
+    document.getElementById('carnetNumDocBox').textContent = numDoc || 'Sin registro';
+    document.getElementById('carnetCodigoBox').textContent = codigo || 'BEN-0000';
+    document.getElementById('carnetMunBox').textContent = municipio || 'Urabá';
+    document.getElementById('carnetCondBox').textContent = condicion || 'General';
+
+    // Iniciales
+    const partes = (nombre || 'B').trim().split(' ');
+    let ini = partes[0][0] || 'B';
+    if (partes.length > 1) ini += partes[1][0] || '';
+    document.getElementById('carnetIniciales').textContent = ini.toUpperCase();
+
+    // Badge IVS
+    const badge = document.getElementById('carnetIVSBadge');
+    if (badge) {
+        badge.textContent = 'IVS: ' + (score || '50') + ' pts (' + (nivel || 'MODERADO') + ')';
+        if (nivel === 'CRÍTICO') {
+            badge.style.background = '#ef4444';
+        } else if (nivel === 'ALTO') {
+            badge.style.background = '#f59e0b';
+            badge.className = 'badge rounded-pill px-2 py-1 fw-bold text-dark';
+        } else if (nivel === 'MODERADO') {
+            badge.style.background = '#0284c7';
+        } else {
+            badge.style.background = '#10b981';
+        }
+    }
+
+    // QR Image
+    const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent("http://127.0.0.1:5000/verificar/" + (codigo || ''));
+    document.getElementById('carnetQRImg').src = qrUrl;
+
+    const modalEl = new bootstrap.Modal(document.getElementById('modalCarnetBeneficiario'));
+    modalEl.show();
+}
+
+function imprimirCarnetPVC() {
+    window.print();
+}
+</script>
+
 </body>
 </html>

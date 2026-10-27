@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                <i class="bi bi-file-earmark-arrow-up-fill me-1"></i> Operaciones Masivas de Datos
+            </span>
+            <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill fs-8">
+                Ley 1581 de 2012
+            </span>
+        </div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Importación Masiva de Beneficiarios</h3>
+        <p class="text-muted fs-7 mb-0">Carga por lotes desde archivos CSV o Excel con validación de duplicados y generación automática de folios</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('descargar_plantilla_csv') }}" class="btn btn-outline-success bg-white rounded-3 fs-7 shadow-sm">
+            <i class="bi bi-file-earmark-excel-fill text-success me-1"></i> Descargar Plantilla Oficial CSV
+        </a>
+        <a href="{{ url_for('listar_beneficiarios') }}" class="btn btn-outline-secondary bg-white rounded-3 fs-7 shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Directorio
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Formulario de Carga del Archivo -->
+    <div class="col-lg-7">
+        <div class="card border-0 bg-white p-4 p-md-5 rounded-4 shadow-sm h-100">
+            <h5 class="fw-bold text-dark mb-1">
+                <i class="bi bi-cloud-arrow-up-fill text-primary me-2"></i>Seleccione o Arrastre el Archivo CSV
+            </h5>
+            <p class="text-muted fs-7 mb-4">
+                El sistema procesará el archivo línea por línea, verificará que no existan documentos repetidos y generará folios <code>BEN-XXXX</code> automáticamente.
+            </p>
+
+            <form action="{{ url_for('importar_beneficiarios') }}" method="POST" enctype="multipart/form-data">
+                <div class="p-4 p-md-5 text-center rounded-4 mb-4" id="dropzone" style="border: 2px dashed #059669; background: rgba(5, 150, 105, 0.03); cursor: pointer; transition: all 0.2s ease;">
+                    <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center p-3 mb-3 shadow-sm" style="width: 60px; height: 60px;">
+                        <i class="bi bi-file-earmark-spreadsheet-fill fs-3"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1" id="nombreArchivoDisplay">Haz clic aquí para seleccionar el archivo CSV</h6>
+                    <small class="text-muted d-block fs-8 mb-3">Formatos admitidos: .csv (separado por comas o punto y coma)</small>
+                    <input type="file" name="archivo_csv" id="archivoCsvInput" accept=".csv,text/csv,text/plain" class="d-none" required>
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="document.getElementById('archivoCsvInput').click()">
+                        <i class="bi bi-folder2-open me-1"></i> Explorar Archivos
+                    </button>
+                </div>
+
+                <div class="alert alert-light border rounded-3 fs-8 text-secondary mb-4">
+                    <i class="bi bi-shield-check text-success me-1"></i>
+                    <strong>Validación Automática:</strong> Los documentos que ya existan en la base de datos oficial serán omitidos para prevenir registros duplicados.
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ url_for('listar_beneficiarios') }}" class="btn btn-light rounded-3 px-3">Cancelar</a>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 fw-semibold" id="btnIniciarCarga">
+                        <i class="bi bi-upload me-1"></i> Procesar e Importar al Padrón
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instrucciones y Estructura Requerida -->
+    <div class="col-lg-5">
+        <div class="card border-0 bg-white p-4 rounded-4 shadow-sm h-100">
+            <h6 class="fw-bold text-dark mb-3">
+                <i class="bi bi-info-circle-fill text-info me-2"></i>Estructura Oficial del Archivo
+            </h6>
+
+            <p class="text-muted fs-8 mb-3">
+                Para que la importación sea exitosa, descargue la plantilla o verifique que su archivo CSV contenga las siguientes columnas en orden:
+            </p>
+
+            <ul class="list-group list-group-flush fs-8 mb-4">
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>1. <strong>Tipo Documento</strong></span>
+                    <span class="text-muted">CC, TI, CE, Pasaporte, PEP</span>
+                </li>
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>2. <strong>Número Documento</strong> <span class="text-danger">*</span></span>
+                    <span class="badge bg-danger-subtle text-danger">Requerido (Único)</span>
+                </li>
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>3. <strong>Nombres</strong> <span class="text-danger">*</span></span>
+                    <span class="badge bg-danger-subtle text-danger">Requerido</span>
+                </li>
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>4. <strong>Apellidos</strong></span>
+                    <span class="text-muted">Texto</span>
+                </li>
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>5. <strong>Fecha Nacimiento</strong></span>
+                    <span class="font-monospace">AAAA-MM-DD</span>
+                </li>
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>6. <strong>Sexo</strong></span>
+                    <span class="text-muted">Masculino, Femenino, Otro</span>
+                </li>
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>7. <strong>Municipio</strong></span>
+                    <span class="text-success fw-semibold">Municipio de Urabá</span>
+                </li>
+                <li class="list-group-item px-0 py-2 d-flex justify-content-between">
+                    <span>8. <strong>Condición Poblacional</strong></span>
+                    <span class="text-muted">Víctima, Desplazado, etc.</span>
+                </li>
+            </ul>
+
+            <div class="p-3 rounded-3" style="background: rgba(5, 150, 105, 0.06); border-left: 3px solid #059669;">
+                <strong class="text-dark fs-8 d-block mb-1"><i class="bi bi-lightbulb-fill text-warning me-1"></i> Consejo Pro:</strong>
+                <p class="text-muted fs-8 mb-0">
+                    Al importar, el algoritmo IVS calculará automáticamente la prioridad social de cada uno de los nuevos registros.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropzone = document.getElementById('dropzone');
+    const input = document.getElementById('archivoCsvInput');
+    const labelDisplay = document.getElementById('nombreArchivoDisplay');
+
+    if (dropzone && input) {
+        dropzone.addEventListener('click', () => input.click());
+
+        input.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                labelDisplay.textContent = 'Archivo seleccionado: ' + this.files[0].name;
+                dropzone.style.background = 'rgba(5, 150, 105, 0.12)';
+                dropzone.style.borderColor = '#047857';
+            }
+        });
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.style.background = 'rgba(5, 150, 105, 0.15)';
+        });
+        dropzone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropzone.style.background = 'rgba(5, 150, 105, 0.03)';
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                input.files = e.dataTransfer.files;
+                labelDisplay.textContent = 'Archivo seleccionado: ' + e.dataTransfer.files[0].name;
+                dropzone.style.background = 'rgba(5, 150, 105, 0.12)';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

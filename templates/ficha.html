@@ -7,6 +7,9 @@
         <p class="text-muted mb-0">Código de Referencia: <span class="badge bg-primary fs-7">{{ b['codigo_interno'] }}</span></p>
     </div>
     <div class="d-flex gap-2">
+        <button type="button" class="btn btn-success rounded-3 fw-semibold" onclick="abrirCarnetBeneficiario('{{ b['nombres'] }} {{ b['apellidos'] }}', '{{ b['tipo_doc'] }}', '{{ b['num_doc'] }}', '{{ b['codigo_interno'] }}', '{{ b['municipio'] or 'Urabá' }}', '{{ b['condicion_poblacional'] or 'General' }}', '{{ ivs['score'] }}', '{{ ivs['nivel'] }}', '{{ b['fecha_nacimiento'] or '' }}')">
+            <i class="bi bi-person-badge-fill me-1"></i> Carnet Digital
+        </button>
         <a href="{{ url_for('imprimir_certificado', id=b['id']) }}" target="_blank" class="btn btn-outline-success rounded-3 fw-semibold">
             <i class="bi bi-file-earmark-pdf-fill me-1"></i> Certificado QR Oficial
         </a>
@@ -63,6 +66,12 @@
             <span class="badge bg-warning-subtle text-warning border">No registrada</span>
             {% endif %}
         </div>
+        <div class="col-md-3">
+            <span class="text-muted fs-7 d-block">Índice Vulnerabilidad (IVS)</span>
+            <span class="badge bg-{{ ivs['clase'] }}-subtle text-{{ ivs['clase'] }} border border-{{ ivs['clase'] }}-subtle px-2 py-1 rounded-pill fs-7 fw-bold" title="{{ ivs['recomendacion'] }}">
+                <i class="bi bi-speedometer2 me-1"></i>{{ ivs['score'] }}/100 &bull; {{ ivs['nivel'] }}
+            </span>
+        </div>
     </div>
 </div>
 
@@ -71,6 +80,11 @@
     <li class="nav-item" role="presentation">
         <button class="nav-link active rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-resumen-btn" data-bs-toggle="tab" data-bs-target="#tab-resumen" type="button" role="tab">
             <i class="bi bi-person-badge me-1"></i> Resumen Integral
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-timeline-btn" data-bs-toggle="tab" data-bs-target="#tab-timeline" type="button" role="tab">
+            <i class="bi bi-clock-history me-1"></i> Línea de Tiempo 360° <span class="badge bg-primary-subtle text-primary ms-1">{{ timeline|length }}</span>
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -99,6 +113,53 @@
 <div class="tab-content" id="fichaTabsContent">
     <!-- Tab 1: Resumen Integral -->
     <div class="tab-pane fade show active" id="tab-resumen" role="tabpanel">
+        <!-- Diagnóstico de Vulnerabilidad Multidimensional (IVS) -->
+        <div class="card border-0 bg-white p-4 rounded-4 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-diagram-2-fill text-success me-2"></i>Diagnóstico de Vulnerabilidad Social Multidimensional (IVS)
+                    </h5>
+                    <small class="text-muted fs-8">Focalización algorítmica automatizada conforme a Sisbén IV y políticas CONPES</small>
+                </div>
+                <span class="badge bg-{{ ivs['clase'] }}-subtle text-{{ ivs['clase'] }} border border-{{ ivs['clase'] }}-subtle px-3 py-2 rounded-pill fs-7 fw-bold">
+                    Puntaje: {{ ivs['score'] }} / 100 &bull; Nivel {{ ivs['nivel'] }}
+                </span>
+            </div>
+
+            <div class="progress rounded-pill mb-3" style="height: 14px;">
+                <div class="progress-bar rounded-pill" role="progressbar" style="width: {{ ivs['score'] }}%; background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);" aria-valuenow="{{ ivs['score'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+
+            <div class="p-3 rounded-3 mb-3" style="background: rgba(5, 150, 105, 0.05); border-left: 4px solid #059669;">
+                <strong class="text-dark fs-7 d-block mb-1"><i class="bi bi-lightbulb-fill text-warning me-1"></i> Recomendación Institucional de Atención:</strong>
+                <span class="fs-7 text-secondary">{{ ivs['recomendacion'] }}</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-borderless align-middle mb-0 fs-8">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Dimensión Evaluada</th>
+                            <th>Hallazgo / Criterio Identificado</th>
+                            <th class="text-end pe-3">Ponderación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in ivs['desglose'] %}
+                        <tr class="border-bottom">
+                            <td class="fw-semibold text-dark">{{ d['categoria'] }}</td>
+                            <td class="text-muted">{{ d['detalle'] }}</td>
+                            <td class="text-end pe-3">
+                                <span class="badge bg-light text-dark border font-monospace">+{{ d['puntos'] }} pts</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="row g-4">
             <div class="col-md-6">
                 <div class="card border-0 bg-white p-4 h-100">
@@ -147,6 +208,60 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+    </div>
+
+
+    <!-- Tab Timeline: Línea de Tiempo Social Integral -->
+    <div class="tab-pane fade" id="tab-timeline" role="tabpanel">
+        <div class="card border-0 bg-white p-4 rounded-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-clock-history text-primary me-2"></i>Historial Cronológico de Atención Social
+                    </h5>
+                    <small class="text-muted fs-8">Trazabilidad unificada de vinculaciones, atenciones recibidas y visitas de seguimiento</small>
+                </div>
+                <span class="badge bg-light text-dark border rounded-pill px-3 py-1 fs-8">
+                    {{ timeline|length }} eventos registrados
+                </span>
+            </div>
+
+            {% if timeline %}
+            <div class="position-relative ps-4" style="border-left: 3px solid #e2e8f0; margin-left: 20px;">
+                {% for t in timeline %}
+                <div class="position-relative mb-4 pb-2">
+                    <!-- Icono / Nodo de la Línea de Tiempo -->
+                    <div class="position-absolute d-flex align-items-center justify-content-center text-white rounded-circle shadow-sm" style="width: 34px; height: 34px; left: -38px; top: 0; background: {{ t['badge_bg'] }};">
+                        <i class="bi {{ t['icon'] }} fs-7"></i>
+                    </div>
+                    <div class="card border-0 p-3 rounded-3 shadow-none bg-light">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-1">
+                            <div>
+                                <span class="badge px-2 py-1 rounded-pill fs-8 fw-semibold text-white mb-1" style="background: {{ t['badge_bg'] }};">
+                                    {{ t['categoria'] }}
+                                </span>
+                                <h6 class="fw-bold text-dark mb-0 fs-7">{{ t['titulo'] }}</h6>
+                            </div>
+                            <span class="badge bg-white text-secondary border font-monospace fs-8">
+                                <i class="bi bi-calendar3 me-1"></i>{{ t['fecha'] }}
+                            </span>
+                        </div>
+                        <p class="text-muted fs-8 mb-2">{{ t['detalle'] }}</p>
+                        <div class="d-flex align-items-center gap-2 fs-8 text-secondary">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span>Estado / Responsable: <strong>{{ t['estado'] }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-clock-history fs-1 d-block mb-2 opacity-50"></i>
+                <p class="mb-0">No se registran eventos cronológicos para este beneficiario todavía.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -512,6 +627,21 @@
                     selRes.value = inpRes.value.trim();
                 }
             });
+        }
+        // Si viene con parámetro ?atender=1, activar pestaña de atenciones y abrir modal de inmediato
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('atender') === '1') {
+            const btnTabAtenc = document.getElementById('tab-atenciones-btn');
+            if (btnTabAtenc) {
+                btnTabAtenc.click();
+            }
+            const modalAtencionEl = document.getElementById('modalAtencion');
+            if (modalAtencionEl) {
+                setTimeout(function() {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalAtencionEl);
+                    modal.show();
+                }, 300);
+            }
         }
     });
 </script>

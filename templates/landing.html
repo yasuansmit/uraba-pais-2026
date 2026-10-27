@@ -3,58 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URABÁ-PAÍS 2026 | Portal Institucional de Gestión Social</title>
+    <title>URABÁ-PAÍS 2026 | Portal Oficial de Gestión Social Territorial</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-emerald: #059669;
+            --dark-emerald: #062e22;
+            --accent-gold: #f59e0b;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #062e22;
+            background-color: #031c15;
             color: #f8fafc;
+            overflow-x: hidden;
         }
         h1, h2, h3, h4, h5, h6, .brand-font {
             font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.02em;
+        }
+        .colombia-ribbon {
+            height: 5px;
+            width: 100%;
+            background: linear-gradient(to right, #FCD116 50%, #003893 50%, #003893 75%, #CE1126 75%);
         }
         .hero-section {
-            padding: 110px 0 80px;
-            background: radial-gradient(circle at top center, rgba(16, 185, 129, 0.2), transparent 70%),
+            padding: 90px 0 70px;
+            background: radial-gradient(circle at 50% 15%, rgba(16, 185, 129, 0.22) 0%, transparent 65%),
+                        radial-gradient(circle at 85% 75%, rgba(5, 150, 105, 0.15) 0%, transparent 50%),
                         linear-gradient(180deg, #062e22 0%, #031c15 100%);
+            position: relative;
         }
         .card-stat {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            backdrop-filter: blur(10px);
-            transition: all 0.25s ease;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .card-stat:hover {
-            transform: translateY(-4px);
-            border-color: rgba(16, 185, 129, 0.3);
-            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px);
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(255, 255, 255, 0.07);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+        }
+        .card-municipio {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.25s ease;
+        }
+        .card-municipio:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.35);
+            transform: translateY(-3px);
         }
         .card-feature {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 20px;
-            transition: all 0.25s ease;
+            border-radius: 22px;
+            transition: all 0.3s ease;
         }
         .card-feature:hover {
             transform: translateY(-6px);
             border-color: rgba(16, 185, 129, 0.4);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
         }
         .brand-badge {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            width: 44px;
-            height: 44px;
+            width: 46px;
+            height: 46px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            border-radius: 14px;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
         }
         .btn-emerald {
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
@@ -68,13 +95,48 @@
             background: linear-gradient(135deg, #047857 0%, #065f46 100%);
             color: #fff;
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.5);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.55);
         }
+        .pulse-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.25); }
+        }
+        .fs-8 { font-size: 0.78rem; }
+        .fs-9 { font-size: 0.70rem; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg border-bottom border-white border-opacity-10 py-3" style="background: rgba(6, 46, 34, 0.95); backdrop-filter: blur(10px);">
+<!-- Cinta Tricolor Oficial -->
+<div class="colombia-ribbon"></div>
+
+<!-- Barra Superior Oficial -->
+<div class="border-bottom border-white border-opacity-10 py-2 fs-8" style="background: rgba(3, 28, 21, 0.95);">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2 text-white-50">
+        <div class="d-flex align-items-center gap-3">
+            <span><i class="bi bi-shield-check text-success me-1"></i> República de Colombia &bull; Subregión de Urabá</span>
+            <span class="d-none d-md-inline">&bull; Vigencia 2026</span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="d-flex align-items-center gap-1"><span class="pulse-indicator"></span> Sistema Activo</span>
+            <a href="{{ url_for('verificar_certificado_publico') }}" target="_blank" class="text-white-50 text-decoration-none hover-white">
+                <i class="bi bi-qr-code-scan text-success me-1"></i> Verificador QR
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Navegación Principal -->
+<nav class="navbar navbar-expand-lg border-bottom border-white border-opacity-10 py-3 sticky-top" style="background: rgba(6, 46, 34, 0.96); backdrop-filter: blur(12px);">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center gap-3 text-white" href="/">
             <div class="brand-badge">
@@ -85,69 +147,205 @@
                 <span class="fs-8 text-light text-opacity-75">Gestión Territorial 2026</span>
             </div>
         </a>
-        <div class="d-flex align-items-center gap-2">
-            {% if session.get('usuario_id') %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-emerald btn-sm px-3 rounded-3"><i class="bi bi-grid-1x2-fill me-1"></i> Ir al Panel</a>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm px-3 rounded-3 border-opacity-50"><i class="bi bi-person-fill-lock me-1"></i> Acceso Funcionarios</a>
-            {% endif %}
+        <button class="navbar-toggler border-white border-opacity-25 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navPortal">
+            <i class="bi bi-list fs-3"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navPortal">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-2 gap-lg-3 my-3 my-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link text-white-50 fs-7" href="#seccionCitas"><i class="bi bi-search me-1 text-success"></i> Consultar Cita</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white-50 fs-7" href="#seccionMunicipios"><i class="bi bi-geo-alt me-1 text-success"></i> Municipios</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white-50 fs-7" href="{{ url_for('verificar_certificado_publico') }}" target="_blank">
+                        <i class="bi bi-qr-code me-1 text-success"></i> Validar QR
+                    </a>
+                </li>
+                <li class="nav-item ms-lg-2">
+                    {% if session.get('usuario_id') %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-emerald btn-sm px-4 py-2 rounded-pill shadow-sm">
+                            <i class="bi bi-grid-1x2-fill me-1"></i> Ir al Panel de Control
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-emerald btn-sm px-4 py-2 rounded-pill shadow-sm">
+                            <i class="bi bi-person-fill-lock me-1"></i> Acceso Funcionarios
+                        </a>
+                    {% endif %}
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
 
+<!-- Hero Section -->
 <section class="hero-section text-center">
-    <div class="container">
-        <span class="badge border px-3 py-2 rounded-pill mb-3 fw-semibold text-white" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4) !important;">
-            <i class="bi bi-geo-alt-fill text-success me-1"></i> Subregión de Urabá · Apartadó, Turbo, Necoclí, Carepa
+    <div class="container position-relative" style="z-index: 2;">
+        <span class="badge border px-3 py-2 rounded-pill mb-3 fw-semibold text-white d-inline-flex align-items-center gap-2" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4) !important;">
+            <span class="pulse-indicator"></span> 11 Municipios Interconectados &bull; Subregión de Urabá
         </span>
         <h1 class="display-3 fw-bold mb-3 text-white" style="letter-spacing: -0.02em;">
-            Sistema de Desarrollo y <br><span style="background: linear-gradient(135deg, #34d399 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Gestión Social Regional</span>
+            Sistema Integrado de Desarrollo y <br>
+            <span style="background: linear-gradient(135deg, #6ee7b7 0%, #10b981 50%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Gestión Social Territorial
+            </span>
         </h1>
-        <p class="lead text-light text-opacity-75 mx-auto mb-4 fs-6" style="max-width: 720px; line-height: 1.7;">
-            Plataforma unificada para el monitoreo de beneficiarios, vinculación a oferta de desarrollo comunitario, registro de atenciones humanitarias y expedición de certificaciones con validación digital QR.
+        <p class="lead text-light text-opacity-75 mx-auto mb-4 fs-6" style="max-width: 740px; line-height: 1.8;">
+            Plataforma institucional para la caracterización de beneficiarios, asignación de subsidios y programas sociales, programación de citas ciudadanas y validación pública de certificaciones con código QR criptográfico.
         </p>
-        <div class="d-flex justify-content-center gap-3">
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
             {% if session.get('usuario_id') %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-emerald btn-lg px-4 py-3 rounded-4 fs-6">
-                    Acceder al Panel de Control <i class="bi bi-arrow-right ms-1"></i>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-emerald btn-lg px-4 py-3 rounded-pill fs-6">
+                    <i class="bi bi-grid-1x2-fill me-2"></i> Abrir Panel de Control
                 </a>
             {% else %}
-                <a href="{{ url_for('login') }}" class="btn btn-emerald btn-lg px-4 py-3 rounded-4 fs-6">
-                    Ingresar al Sistema <i class="bi bi-arrow-right ms-1"></i>
+                <a href="{{ url_for('login') }}" class="btn btn-emerald btn-lg px-4 py-3 rounded-pill fs-6">
+                    <i class="bi bi-arrow-right-circle-fill me-2"></i> Ingresar como Funcionario
                 </a>
             {% endif %}
+            <a href="#seccionCitas" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill fs-6" style="background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2);">
+                <i class="bi bi-search me-2 text-success"></i> Consultar Estado de Cita
+            </a>
         </div>
     </div>
 </section>
 
-<section class="py-5" style="background: #031c15;">
+<!-- Métricas de Impacto Regional -->
+<section class="py-5" style="background: #02140f;">
     <div class="container">
-        <!-- Métricas Rápidas -->
-        <div class="row g-4 text-center mb-5">
-            <div class="col-md-4">
-                <div class="card-stat p-4">
-                    <i class="bi bi-people-fill fs-2 text-success mb-2 d-block"></i>
+        <div class="row g-4 text-center">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-stat p-4 h-100">
+                    <div class="d-inline-flex p-3 rounded-3 mb-2" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">
+                        <i class="bi bi-people-fill fs-2"></i>
+                    </div>
                     <h2 class="fw-bold text-white mb-0">{{ total_beneficiarios }}</h2>
-                    <span class="text-light text-opacity-75 fs-7">Ciudadanos Registrados</span>
+                    <span class="text-light text-opacity-75 fs-7">Ciudadanos Caracterizados</span>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card-stat p-4">
-                    <i class="bi bi-heart-pulse-fill fs-2 text-info mb-2 d-block"></i>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-stat p-4 h-100">
+                    <div class="d-inline-flex p-3 rounded-3 mb-2" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+                        <i class="bi bi-heart-pulse-fill fs-2"></i>
+                    </div>
                     <h2 class="fw-bold text-white mb-0">{{ total_atenciones }}</h2>
                     <span class="text-light text-opacity-75 fs-7">Atenciones y Asistencias</span>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card-stat p-4">
-                    <i class="bi bi-diagram-3-fill fs-2 text-warning mb-2 d-block"></i>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-stat p-4 h-100">
+                    <div class="d-inline-flex p-3 rounded-3 mb-2" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">
+                        <i class="bi bi-diagram-3-fill fs-2"></i>
+                    </div>
                     <h2 class="fw-bold text-white mb-0">{{ total_programas }}</h2>
                     <span class="text-light text-opacity-75 fs-7">Programas Activos</span>
                 </div>
             </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card-stat p-4 h-100">
+                    <div class="d-inline-flex p-3 rounded-3 mb-2" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">
+                        <i class="bi bi-geo-alt-fill fs-2"></i>
+                    </div>
+                    <h2 class="fw-bold text-white mb-0">11</h2>
+                    <span class="text-light text-opacity-75 fs-7">Municipios Conectados</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECCIÓN: CONSULTA CIUDADANA DE CITAS (Pública y 100% Funcional) -->
+<section id="seccionCitas" class="py-5" style="background: linear-gradient(180deg, #02140f 0%, #04241b 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="p-4 p-md-5 rounded-4 shadow-xl border border-success border-opacity-25" style="background: rgba(6, 46, 34, 0.85); backdrop-filter: blur(16px);">
+                    <div class="text-center mb-4">
+                        <span class="badge bg-success-subtle text-success border border-success px-3 py-1 rounded-pill fs-8 fw-semibold mb-2">
+                            <i class="bi bi-calendar-check me-1"></i> Servicio Ciudadano en Línea
+                        </span>
+                        <h3 class="fw-bold text-white mb-1">Consultar Estado de mi Cita</h3>
+                        <p class="text-light text-opacity-75 fs-7 mb-0">
+                            Ingrese su número de documento de identidad para verificar citas programadas de atención social, entrega de ayudas o visitas domiciliarias.
+                        </p>
+                    </div>
+
+                    <form id="formConsultaCita" onsubmit="consultarCitaCiudadano(event)" class="row g-2 justify-content-center mb-3">
+                        <div class="col-md-8">
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-person-badge-fill text-success"></i></span>
+                                <input type="text" id="docConsulta" class="form-control border-0 fs-7" placeholder="Número de Documento (C.C. / T.I.)" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-emerald btn-lg w-100 rounded-3 fs-7 fw-bold d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-search"></i> Consultar
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Resultados de la Consulta -->
+                    <div id="resultadoCitas" class="mt-4" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECCIÓN: LOS 11 MUNICIPIOS DE URABÁ -->
+<section id="seccionMunicipios" class="py-5" style="background: #031c15;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge border px-3 py-1 rounded-pill mb-2 text-success border-success" style="background: rgba(16, 185, 129, 0.1);">
+                Cobertura Territorial
+            </span>
+            <h3 class="fw-bold text-white mb-1">Subregión de Urabá · Antioquia</h3>
+            <p class="text-light text-opacity-75 fs-7 mb-0">Red articulada de atención en las 11 cabeceras y zonas rurales</p>
         </div>
 
-        <!-- Módulos de Operación -->
+        <div class="row g-3">
+            {% set muns = [
+                {'nombre': 'Apartadó', 'rol': 'Eje Comercial y Administrativo', 'icono': 'bi-building'},
+                {'nombre': 'Turbo', 'rol': 'Distrito Especial Portuario', 'icono': 'bi-water'},
+                {'nombre': 'Carepa', 'rol': 'Conexión Aeroportuaria y Agro', 'icono': 'bi-airplane'},
+                {'nombre': 'Chigorodó', 'rol': 'Eje Productivo del Sur', 'icono': 'bi-tree'},
+                {'nombre': 'Necoclí', 'rol': 'Corredor Costero y Turístico', 'icono': 'bi-compass'},
+                {'nombre': 'Arboletes', 'rol': 'Zona Norte Marítima', 'icono': 'bi-sun'},
+                {'nombre': 'San Pedro de Urabá', 'rol': 'Producción Agropecuaria', 'icono': 'bi-flower1'},
+                {'nombre': 'San Juan de Urabá', 'rol': 'Comunidad Costera', 'icono': 'bi-tsunami'},
+                {'nombre': 'Mutatá', 'rol': 'Puerta de Oro de Urabá', 'icono': 'bi-signpost'},
+                {'nombre': 'Murindó', 'rol': 'Atrato Medio y Comunidades Étnicas', 'icono': 'bi-droplet'},
+                {'nombre': 'Vigía del Fuerte', 'rol': 'Cuenca Fluvial del Atrato', 'icono': 'bi-shield'}
+            ] %}
+            {% for m in muns %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card-municipio h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <i class="{{ m.icono }} text-success fs-4"></i>
+                            <span class="badge bg-success bg-opacity-20 text-success fs-9 rounded-pill">Activo</span>
+                        </div>
+                        <h6 class="fw-bold text-white mb-1">{{ m.nombre }}</h6>
+                        <small class="text-white-50 fs-8 d-block">{{ m.rol }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card-municipio h-100 d-flex flex-column justify-content-center text-center p-3" style="border-style: dashed; border-color: rgba(16, 185, 129, 0.4);">
+                    <i class="bi bi-patch-check-fill text-warning fs-3 mb-1"></i>
+                    <strong class="text-white fs-8">100% Cobertura</strong>
+                    <small class="text-white-50 fs-9">Subregión Urabá</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECCIÓN: PILARES Y SEGURIDAD -->
+<section class="py-5" style="background: #02120e;">
+    <div class="container">
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="card-feature p-4 h-100">
@@ -155,16 +353,16 @@
                         <i class="bi bi-person-vcard fs-3"></i>
                     </div>
                     <h5 class="fw-bold text-white mb-2">Ficha Integrada 360°</h5>
-                    <p class="text-light text-opacity-75 fs-7 mb-0">Consolidación de código interno (BEN), núcleo familiar, programas inscritos y bitácora de atenciones recibidas.</p>
+                    <p class="text-light text-opacity-75 fs-7 mb-0">Consolidación de código interno (BEN), núcleo familiar, programas asignados e historial de atenciones recibidas.</p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card-feature p-4 h-100">
                     <div class="d-inline-flex p-3 rounded-3 mb-3" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8;">
-                        <i class="bi bi-patch-check-fill fs-3"></i>
+                        <i class="bi bi-qr-code-scan fs-3"></i>
                     </div>
                     <h5 class="fw-bold text-white mb-2">Certificaciones con QR</h5>
-                    <p class="text-light text-opacity-75 fs-7 mb-0">Emisión de constancias de vinculación con código QR dinámico y sellos institucionales para validez nacional.</p>
+                    <p class="text-light text-opacity-75 fs-7 mb-0">Emisión de constancias de focalización social con código QR oficial y validación criptográfica SHA-256 pública.</p>
                 </div>
             </div>
             <div class="col-md-4">
@@ -172,19 +370,118 @@
                     <div class="d-inline-flex p-3 rounded-3 mb-3" style="background: rgba(245, 158, 11, 0.1); color: #fbbf24;">
                         <i class="bi bi-shield-lock-fill fs-3"></i>
                     </div>
-                    <h5 class="fw-bold text-white mb-2">Seguridad por Roles</h5>
-                    <p class="text-light text-opacity-75 fs-7 mb-0">Acceso restringido para funcionarios y administradores, con auditoría y protección estricta de Habeas Data.</p>
+                    <h5 class="fw-bold text-white mb-2">Seguridad por Roles & Auditoría</h5>
+                    <p class="text-light text-opacity-75 fs-7 mb-0">Protección estricta de datos personales bajo la Ley Estatutaria 1581 de 2012 (Habeas Data) y bitácora forense inmutable.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<footer class="py-4 border-top border-white border-opacity-10 text-center text-light text-opacity-50 fs-8" style="background: #02120e;">
+<!-- Footer Institucional -->
+<footer class="py-5 border-top border-white border-opacity-10 text-light text-opacity-75 fs-8" style="background: #010c09;">
     <div class="container">
-        URABÁ-PAÍS &copy; 2026 · Sistema Integrado de Gestión Humana y Territorial · República de Colombia
+        <div class="row g-4 mb-4">
+            <div class="col-lg-5">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="brand-badge" style="width: 36px; height: 36px;">
+                        <i class="bi bi-shield-fill-check fs-5 text-white"></i>
+                    </div>
+                    <span class="brand-font fw-bold fs-5 text-white">URABÁ-PAÍS</span>
+                </div>
+                <p class="text-white-50 fs-8 mb-2" style="max-width: 400px;">
+                    Plataforma Oficial de Gestión Social, Focalización y Trazabilidad Territorial de la Subregión de Urabá &bull; Antioquia, Colombia.
+                </p>
+                <small class="text-white-50">Vigencia Fiscal 2026 &bull; Conforme a la Ley 1581 de 2012</small>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <h6 class="fw-bold text-white mb-3">Servicios al Ciudadano</h6>
+                <ul class="list-unstyled d-flex flex-column gap-2 text-white-50">
+                    <li><a href="#seccionCitas" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right text-success me-1"></i> Consultar Cita</a></li>
+                    <li><a href="{{ url_for('verificar_certificado_publico') }}" target="_blank" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right text-success me-1"></i> Validar Certificado QR</a></li>
+                    <li><a href="{{ url_for('login') }}" class="text-white-50 text-decoration-none hover-white"><i class="bi bi-chevron-right text-success me-1"></i> Portal de Funcionarios</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <h6 class="fw-bold text-white mb-3">Sede Administrativa</h6>
+                <p class="text-white-50 fs-8 mb-1"><i class="bi bi-geo-alt-fill text-success me-2"></i> Centro Integrado de Servicios Regionales, Apartadó, Urabá</p>
+                <p class="text-white-50 fs-8 mb-1"><i class="bi bi-envelope-fill text-success me-2"></i> contacto@uraba.gov.co</p>
+                <p class="text-white-50 fs-8"><i class="bi bi-telephone-fill text-success me-2"></i> Línea de Atención: +57 (604) 828-0000</p>
+            </div>
+        </div>
+        <div class="pt-3 border-top border-white border-opacity-10 text-center text-white-50 fs-9">
+            URABÁ-PAÍS &copy; 2026 &bull; Todos los derechos reservados &bull; República de Colombia
+        </div>
     </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+async function consultarCitaCiudadano(e) {
+    e.preventDefault();
+    const doc = document.getElementById('docConsulta').value.trim();
+    const resBox = document.getElementById('resultadoCitas');
+    if (!doc) return;
+
+    resBox.style.display = 'block';
+    resBox.innerHTML = '<div class="text-center text-white py-3"><div class="spinner-border text-success spinner-border-sm me-2"></div>Consultando citas en la subregión...</div>';
+
+    try {
+        const formData = new FormData();
+        formData.append('num_doc', doc);
+        const resp = await fetch('{{ url_for("consultar_cita_publica") }}', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await resp.json();
+
+        if (!data.ok) {
+            resBox.innerHTML = `<div class="alert alert-warning border-0 rounded-3 text-dark fs-8 mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>${data.mensaje}</div>`;
+            return;
+        }
+
+        if (data.citas.length === 0) {
+            resBox.innerHTML = `<div class="alert alert-secondary border-0 rounded-3 text-dark fs-8 mb-0"><i class="bi bi-info-circle-fill me-2"></i>${data.mensaje}</div>`;
+            return;
+        }
+
+        let html = `<div class="card border-0 rounded-3 bg-white text-dark p-3 shadow-sm">
+            <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-calendar-check-fill text-success me-2"></i>Citas Programadas Encontradas (${data.citas.length})</h6>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0 fs-8">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Tipo de Atención</th>
+                            <th>Municipio</th>
+                            <th>Funcionario</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+        data.citas.forEach(c => {
+            let badgeClass = 'bg-primary text-white';
+            if (c.estado === 'Confirmada') badgeClass = 'bg-info text-dark';
+            else if (c.estado === 'En Atención') badgeClass = 'bg-warning text-dark';
+            else if (c.estado === 'Atendida') badgeClass = 'bg-success text-white';
+
+            html += `<tr>
+                <td><strong>${c.fecha}</strong></td>
+                <td>${c.hora}</td>
+                <td><span class="badge bg-light text-dark border">${c.tipo}</span></td>
+                <td>${c.municipio}</td>
+                <td>${c.funcionario}</td>
+                <td><span class="badge ${badgeClass} rounded-pill">${c.estado}</span></td>
+            </tr>`;
+        });
+        html += `</tbody></table></div></div>`;
+        resBox.innerHTML = html;
+    } catch (err) {
+        resBox.innerHTML = '<div class="alert alert-danger border-0 rounded-3 text-white fs-8 mb-0"><i class="bi bi-x-circle-fill me-2"></i>Error al consultar el servidor. Intente nuevamente.</div>';
+    }
+}
+</script>
 
 </body>
 </html>

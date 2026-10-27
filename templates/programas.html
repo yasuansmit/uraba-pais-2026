@@ -1,12 +1,74 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
         <h3 class="fw-bold text-dark mb-1">Módulo de Programas</h3>
         <p class="text-muted mb-0">Gestión de inscripciones y oferta institucional</p>
     </div>
-    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalProgramaGeneral"><i class="bi bi-plus-lg me-1"></i>  Vincular a Programa</button>
+    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalProgramaGeneral">
+        <i class="bi bi-plus-lg me-1"></i> Vincular a Programa
+    </button>
+</div>
+
+<!-- Barra de Búsqueda y Filtros -->
+<div class="card border-0 p-3 mb-4 bg-white shadow-sm rounded-4">
+    <form method="GET" action="{{ url_for('programas') }}" class="row g-2 align-items-center">
+        <div class="col-lg-5 col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ q }}" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por beneficiario, doc, código o programa...">
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-6">
+            <select name="programa" class="form-select bg-light border-0 rounded-3 fs-7" onchange="this.form.submit()">
+                <option value="">-- Todos los programas --</option>
+                {% for prog in programas_catalogo %}
+                    <option value="{{ prog }}" {% if programa_filtro == prog %}selected{% endif %}>
+                        {{ prog }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-6">
+            <select name="estado" class="form-select bg-light border-0 rounded-3 fs-7 text-capitalize" onchange="this.form.submit()">
+                <option value="">-- Todos los estados --</option>
+                {% for est in estados_catalogo %}
+                    <option value="{{ est }}" {% if estado_filtro == est %}selected{% endif %}>
+                        {{ est|capitalize }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-1 col-md-12 d-flex gap-1">
+            <button type="submit" class="btn btn-primary w-100 rounded-3 fw-semibold fs-7" title="Buscar / Filtrar">
+                <i class="bi bi-funnel-fill"></i>
+            </button>
+            {% if q or programa_filtro or estado_filtro %}
+                <a href="{{ url_for('programas') }}" class="btn btn-outline-danger rounded-3" title="Limpiar filtros">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if q or programa_filtro or estado_filtro %}
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top fs-8 text-muted">
+        <span><i class="bi bi-funnel text-success me-1"></i> Filtros activos:</span>
+        {% if q %}
+            <span class="badge bg-light text-dark border rounded-pill">Búsqueda: "{{ q }}"</span>
+        {% endif %}
+        {% if programa_filtro %}
+            <span class="badge bg-light text-dark border rounded-pill">Programa: {{ programa_filtro }}</span>
+        {% endif %}
+        {% if estado_filtro %}
+            <span class="badge bg-light text-dark border rounded-pill text-capitalize">Estado: {{ estado_filtro }}</span>
+        {% endif %}
+        <a href="{{ url_for('programas') }}" class="text-danger text-decoration-none ms-auto fw-semibold">
+            <i class="bi bi-trash3 me-1"></i> Restablecer filtros
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
@@ -32,7 +94,7 @@
                     <td class="fw-semibold text-dark">{{ p['programa_nombre'] }}</td>
                     <td>{{ p['linea_trabajo'] or 'General' }}</td>
                     <td>{{ p['fecha_vinculacion'] }}</td>
-                    <td><span class="badge bg-success-subtle text-success border">{{ p['estado'] }}</span></td>
+                    <td><span class="badge bg-success-subtle text-success border text-capitalize">{{ p['estado'] }}</span></td>
                     {% if es_admin %}
                     <td class="text-end pe-4">
                         <form action="{{ url_for('eliminar_participacion', id=p['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar esta vinculación?');">
@@ -45,12 +107,41 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="{% if es_admin %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No hay beneficiarios vinculados a programas aún.</td>
+                    <td colspan="{% if es_admin %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No hay beneficiarios vinculados con los criterios seleccionados.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    {% if total_paginas > 1 %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light flex-wrap gap-2">
+        <span class="text-muted fs-7">Mostrando página {{ pagina }} de {{ total_paginas }} (Total: {{ total }} vinculaciones)</span>
+        <nav aria-label="Paginación de programas">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+                    <a class="page-link rounded-start-3" href="{{ url_for('programas', pagina=pagina-1, q=q, programa=programa_filtro, estado=estado_filtro) }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% for p in range(1, total_paginas + 1) %}
+                    {% if p == pagina %}
+                        <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                    {% elif p >= pagina - 2 and p <= pagina + 2 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('programas', pagina=p, q=q, programa=programa_filtro, estado=estado_filtro) }}">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+                    <a class="page-link rounded-end-3" href="{{ url_for('programas', pagina=pagina+1, q=q, programa=programa_filtro, estado=estado_filtro) }}">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Modal Vincular General -->
@@ -105,9 +196,9 @@
                     <label class="form-label fw-semibold">Estado de participación</label>
                     <select name="estado" class="form-select" required>
                         <option value="inscrito">Inscrito</option>
-                        <option value="en proceso">En proceso</option>
-                        <option value="finalizado">Finalizado</option>
-                        <option value="retirado">Retirado</option>
+                        <option value="activo">Activo</option>
+                        <option value="graduado">Graduado</option>
+                        <option value="desertor">Desertor</option>
                     </select>
                 </div>
             </div>

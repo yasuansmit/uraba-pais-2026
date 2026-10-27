@@ -16,8 +16,8 @@
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-fonts text-success fs-4"></i>
-                            <h5 class="fw-bold mb-0 text-dark">Tipografía y Estilo Visual</h5>
+                            <i class="bi bi-palette-fill text-primary fs-4"></i>
+                            <h5 class="fw-bold mb-0 text-dark">Paleta de Color y Tipografía</h5>
                         </div>
                         <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8">
                             En Tiempo Real
@@ -26,26 +26,57 @@
                     <p class="text-muted fs-7 mb-3">Personalice la fuente tipográfica de la plataforma para adaptar la estética visual según su preferencia institucional.</p>
 
                     <form action="{{ url_for('guardar_apariencia') }}" method="POST" id="formApariencia">
-                        <!-- Selector de Acabado / Estilo Visual -->
-                        <div class="mb-3">
-                            <label class="form-label fs-7 fw-semibold text-dark">Acabado Visual de la Interfaz</label>
+                        <!-- Selector de Paleta de Colores del Programa -->
+                        <div class="mb-4">
+                            <label class="form-label fs-7 fw-semibold text-dark d-flex align-items-center justify-content-between mb-2">
+                                <span><i class="bi bi-palette2 me-1 text-primary"></i> Color del Programa</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-0.5 rounded-pill fs-8" id="badgeColorActivo">Verde Urabá</span>
+                            </label>
                             <div class="row g-2">
-                                <div class="col-6">
-                                    <div class="p-3 rounded-3 border text-center cursor-pointer opcion-estilo" id="optGlassy" onclick="seleccionarEstilo('glassy')" style="cursor: pointer; transition: all 0.2s;">
-                                        <i class="bi bi-droplet-half fs-4 text-emerald d-block mb-1 text-success"></i>
-                                        <strong class="fs-7 d-block">Efecto Glassy</strong>
-                                        <small class="text-muted fs-8">Cristal traslúcido & blur</small>
+                                <div class="col-4">
+                                    <div class="p-2 rounded-3 border text-center opcion-color" id="optColorVerde" onclick="seleccionarColorTema('verde')" style="cursor: pointer; transition: all 0.2s;">
+                                        <div class="rounded-circle mx-auto mb-1 shadow-sm" style="width: 26px; height: 26px; background: linear-gradient(135deg, #10b981, #047857);"></div>
+                                        <strong class="fs-8 d-block text-dark">Verde</strong>
+                                        <small class="text-muted fs-9">Urabá Oficial</small>
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <div class="p-3 rounded-3 border text-center cursor-pointer opcion-estilo" id="optSolido" onclick="seleccionarEstilo('solido')" style="cursor: pointer; transition: all 0.2s;">
-                                        <i class="bi bi-square-fill fs-4 text-muted d-block mb-1"></i>
-                                        <strong class="fs-7 d-block">Clásico Sólido</strong>
-                                        <small class="text-muted fs-8">Superficies opacas</small>
+                                <div class="col-4">
+                                    <div class="p-2 rounded-3 border text-center opcion-color" id="optColorAzul" onclick="seleccionarColorTema('azul')" style="cursor: pointer; transition: all 0.2s;">
+                                        <div class="rounded-circle mx-auto mb-1 shadow-sm" style="width: 26px; height: 26px; background: linear-gradient(135deg, #38bdf8, #0284c7);"></div>
+                                        <strong class="fs-8 d-block text-dark">Azul</strong>
+                                        <small class="text-muted fs-9">Atlántico</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 rounded-3 border text-center opcion-color" id="optColorPurpura" onclick="seleccionarColorTema('purpura')" style="cursor: pointer; transition: all 0.2s;">
+                                        <div class="rounded-circle mx-auto mb-1 shadow-sm" style="width: 26px; height: 26px; background: linear-gradient(135deg, #818cf8, #6366f1);"></div>
+                                        <strong class="fs-8 d-block text-dark">Púrpura</strong>
+                                        <small class="text-muted fs-9">Índigo Real</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 rounded-3 border text-center opcion-color" id="optColorRojo" onclick="seleccionarColorTema('rojo')" style="cursor: pointer; transition: all 0.2s;">
+                                        <div class="rounded-circle mx-auto mb-1 shadow-sm" style="width: 26px; height: 26px; background: linear-gradient(135deg, #f43f5e, #be123c);"></div>
+                                        <strong class="fs-8 d-block text-dark">Vino Tinto</strong>
+                                        <small class="text-muted fs-9">Carmesí</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 rounded-3 border text-center opcion-color" id="optColorAmbar" onclick="seleccionarColorTema('ambar')" style="cursor: pointer; transition: all 0.2s;">
+                                        <div class="rounded-circle mx-auto mb-1 shadow-sm" style="width: 26px; height: 26px; background: linear-gradient(135deg, #f59e0b, #b45309);"></div>
+                                        <strong class="fs-8 d-block text-dark">Ámbar</strong>
+                                        <small class="text-muted fs-9">Cacao Sol</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-2 rounded-3 border text-center opcion-color" id="optColorGrafito" onclick="seleccionarColorTema('grafito')" style="cursor: pointer; transition: all 0.2s;">
+                                        <div class="rounded-circle mx-auto mb-1 shadow-sm" style="width: 26px; height: 26px; background: linear-gradient(135deg, #64748b, #334155);"></div>
+                                        <strong class="fs-8 d-block text-dark">Grafito</strong>
+                                        <small class="text-muted fs-9">Carbón Tech</small>
                                     </div>
                                 </div>
                             </div>
-                            <input type="hidden" name="estilo_visual" id="inputEstiloVisual" value="glassy">
+                            <input type="hidden" name="color_tema" id="inputColorTema" value="{{ color_tema_actual or 'verde' }}">
                         </div>
 
                         <div class="mb-3">
@@ -63,7 +94,7 @@
                         <div class="p-3 rounded-3 mb-3 border bg-light" id="previewTipografia">
                             <small class="text-muted d-block mb-1 fs-8 fw-semibold text-uppercase">Previsualización en tiempo real:</small>
                             <h5 class="fw-bold mb-1 text-dark" id="previewTitulo">URABÁ-PAÍS 2026 · Gestión Social</h5>
-                            <p class="fs-7 text-muted mb-0" id="previewTexto">Esta es una muestra de cómo se visualizan las tarjetas con efecto Glassy, tablas, botones y reportes.</p>
+                            <p class="fs-7 text-muted mb-0" id="previewTexto">Esta es una muestra de cómo se visualizan los colores del programa en tarjetas, tablas, botones y reportes.</p>
                         </div>
 
                         <button type="submit" class="btn btn-primary rounded-3 w-100 py-2 fs-7 fw-semibold shadow-sm">
@@ -109,6 +140,59 @@
         </div>
         </div>
 
+        <!-- Respaldo Criptográfico de Base de Datos (ISO 27001 / SHA-256) -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center p-2" style="width: 44px; height: 44px;">
+                                <i class="bi bi-database-fill-check fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">Copia de Seguridad y Respaldo Criptográfico</h5>
+                                <p class="text-muted fs-8 mb-0">Generación de volcado SQL completo con firma de integridad SHA-256 &bull; Norma ISO/IEC 27001</p>
+                            </div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fs-8">
+                            <i class="bi bi-shield-shaded me-1"></i> Anti-Ransomware Ready
+                        </span>
+                    </div>
+
+                    <div class="row g-3 my-2">
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 bg-light border">
+                                <span class="text-muted fs-8 text-uppercase fw-semibold d-block mb-1">Algoritmo de Integridad</span>
+                                <div class="fw-bold text-dark fs-7"><i class="bi bi-hash text-success me-1"></i>SHA-256 Inmutable</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 bg-light border">
+                                <span class="text-muted fs-8 text-uppercase fw-semibold d-block mb-1">Alcance de Respaldo</span>
+                                <div class="fw-bold text-dark fs-7"><i class="bi bi-table text-primary me-1"></i>Estructura DDL + Datos DML</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 bg-light border">
+                                <span class="text-muted fs-8 text-uppercase fw-semibold d-block mb-1">Trazabilidad</span>
+                                <div class="fw-bold text-dark fs-7"><i class="bi bi-journal-text text-warning me-1"></i>Registro en Auditoría</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4 pt-3 border-top">
+                        <div class="text-muted fs-8">
+                            <i class="bi bi-info-circle text-primary me-1"></i>
+                            El respaldo genera un archivo <code>.sql</code> estándar compatible con phpMyAdmin, MySQL Workbench y consolas Linux/Windows.
+                        </div>
+                        <a href="{{ url_for('respaldo_db') }}" class="btn btn-success px-4 py-2 rounded-3 fw-bold shadow-sm">
+                            <i class="bi bi-cloud-arrow-down-fill me-1"></i> Descargar Respaldo Criptográfico (.sql)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Seguridad y Credenciales -->
         <div class="col-12">
             <div class="card border-0 shadow-sm rounded-4">
@@ -148,61 +232,50 @@
 </div>
 
 <script>
-    function seleccionarEstilo(estilo) {
-        const input = document.getElementById('inputEstiloVisual');
-        if (input) input.value = estilo;
+    const nombresColores = {
+        'verde': 'Verde Urabá (Oficial)',
+        'azul': 'Azul Océano (Atlántico)',
+        'purpura': 'Púrpura (Índigo Real)',
+        'rojo': 'Vino Tinto (Carmesí)',
+        'ambar': 'Ámbar Cacao (Terracota)',
+        'grafito': 'Grafito (Carbón Tech)'
+    };
 
-        const optGlassy = document.getElementById('optGlassy');
-        const optSolido = document.getElementById('optSolido');
+    function seleccionarColorTema(color) {
+        const input = document.getElementById('inputColorTema');
+        if (input) input.value = color;
 
-        if (estilo === 'glassy') {
-            if (optGlassy) {
-                optGlassy.classList.add('border-success', 'bg-success-subtle');
-                optGlassy.classList.remove('border-secondary', 'bg-light');
+        const opciones = ['verde', 'azul', 'purpura', 'rojo', 'ambar', 'grafito'];
+        opciones.forEach(c => {
+            const el = document.getElementById('optColor' + c.charAt(0).toUpperCase() + c.slice(1));
+            if (el) {
+                if (c === color) {
+                    el.classList.add('border-primary', 'bg-primary-subtle');
+                    el.classList.remove('border-secondary');
+                    el.style.borderWidth = '2px';
+                } else {
+                    el.classList.remove('border-primary', 'bg-primary-subtle');
+                    el.style.borderWidth = '1px';
+                }
             }
-            if (optSolido) {
-                optSolido.classList.remove('border-success', 'bg-success-subtle');
-                optSolido.classList.add('border', 'bg-light');
-            }
-        } else {
-            if (optSolido) {
-                optSolido.classList.add('border-success', 'bg-success-subtle');
-                optSolido.classList.remove('border', 'bg-light');
-            }
-            if (optGlassy) {
-                optGlassy.classList.remove('border-success', 'bg-success-subtle');
-                optGlassy.classList.add('border', 'bg-light');
-            }
+        });
+
+        const badge = document.getElementById('badgeColorActivo');
+        if (badge && nombresColores[color]) {
+            badge.textContent = nombresColores[color];
         }
 
-        if (typeof aplicarEstilo === 'function') {
-            aplicarEstilo(estilo);
+        if (typeof aplicarColorTema === 'function') {
+            aplicarColorTema(color);
         } else {
-            if (estilo === 'glassy') {
-                document.documentElement.classList.add('estilo-glassy');
-            } else {
-                document.documentElement.classList.remove('estilo-glassy');
-            }
-            localStorage.setItem('estilo_uraba', estilo);
-        }
-    }
-
-    function cambiarFuenteEnVivo(fuente) {
-        const preview = document.getElementById('previewTipografia');
-        if (preview) {
-            preview.style.fontFamily = fuente;
-        }
-        if (typeof aplicarFuente === 'function') {
-            aplicarFuente(fuente);
-        } else {
-            document.documentElement.style.setProperty('--font-family-current', fuente);
-            localStorage.setItem('fuente_uraba', fuente);
+            document.documentElement.setAttribute('data-color-tema', color);
+            localStorage.setItem('color_tema_uraba', color);
         }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        const estiloGuardado = localStorage.getItem('estilo_uraba') || 'glassy';
-        seleccionarEstilo(estiloGuardado);
+        const colorGuardado = localStorage.getItem('color_tema_uraba') || '{{ color_tema_actual or "verde" }}';
+        seleccionarColorTema(colorGuardado);
 
         const select = document.getElementById('selectFuente');
         const fuenteGuardada = localStorage.getItem('fuente_uraba');

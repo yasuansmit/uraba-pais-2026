@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Encabezado de la Vista -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                    <i class="bi bi-database-fill-gear me-1"></i> Motor de Base de Datos MySQL 8.0
+                </span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                    <i class="bi bi-check2-circle me-1"></i> uraba_pais_db
+                </span>
+            </div>
+            <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Procedimientos Almacenados (Stored Procedures)</h3>
+            <p class="text-muted fs-7 mb-0">Lógica de negocio compilada, transacciones ACID y optimización server-side en MySQL</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <form action="{{ url_for('reinstalar_stored_procedures_route') }}" method="POST" class="d-inline" onsubmit="return confirm('¿Desea reinstalar y recompilar los Stored Procedures en el motor MySQL?');">
+                <button type="submit" class="btn btn-outline-success bg-white rounded-3 fs-7 shadow-sm">
+                    <i class="bi bi-arrow-repeat me-1"></i> Reinstalar en MySQL
+                </button>
+            </form>
+            <a href="{{ url_for('configuracion') }}" class="btn btn-outline-secondary bg-white rounded-3 fs-7 shadow-sm">
+                <i class="bi bi-gear me-1"></i> Configuración
+            </a>
+        </div>
+    </div>
+
+    <!-- Tarjetas de Métricas de Arquitectura -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 p-3 bg-white h-100 shadow-sm rounded-4 position-relative overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm flex-shrink-0" style="width: 48px; height: 48px; background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                        <i class="bi bi-cpu-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted fs-8 text-uppercase fw-semibold">Procedimientos Activos</span>
+                        <h3 class="fw-bold mb-0 text-dark">{{ total_sp }}</h3>
+                        <small class="text-success fs-9 fw-semibold"><i class="bi bi-check-circle me-1"></i>En catálogo MySQL</small>
+                    </div>
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #10b981, transparent);"></div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 p-3 bg-white h-100 shadow-sm rounded-4 position-relative overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm flex-shrink-0" style="width: 48px; height: 48px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                        <i class="bi bi-shield-check fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted fs-8 text-uppercase fw-semibold">Transaccionalidad</span>
+                        <h4 class="fw-bold mb-0 text-dark">ACID</h4>
+                        <small class="text-primary fs-9 fw-semibold"><i class="bi bi-arrow-counterclockwise me-1"></i>Rollback automático</small>
+                    </div>
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #0284c7, transparent);"></div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 p-3 bg-white h-100 shadow-sm rounded-4 position-relative overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm flex-shrink-0" style="width: 48px; height: 48px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+                        <i class="bi bi-code-slash fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted fs-8 text-uppercase fw-semibold">Integración Backend</span>
+                        <h4 class="fw-bold mb-0 text-dark">Python + MySQL</h4>
+                        <small class="text-purple fs-9 fw-semibold" style="color: #7c3aed;"><i class="bi bi-terminal me-1"></i>cursor.callproc()</small>
+                    </div>
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #7c3aed, transparent);"></div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 p-3 bg-white h-100 shadow-sm rounded-4 position-relative overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm flex-shrink-0" style="width: 48px; height: 48px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%);">
+                        <i class="bi bi-lightning-charge-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted fs-8 text-uppercase fw-semibold">Velocidad Servidor</span>
+                        <h4 class="fw-bold mb-0 text-dark">&lt; 5 ms</h4>
+                        <small class="text-warning fs-9 fw-semibold" style="color: #d97706;"><i class="bi bi-speedometer2 me-1"></i>Zero network lag</small>
+                    </div>
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #d97706, transparent);"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista Detallada de Stored Procedures -->
+    <div class="row g-4 mb-4">
+        {% for sp in procedures %}
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 bg-white h-100 overflow-hidden d-flex flex-column justify-content-between">
+                <div class="card-body p-4">
+                    <!-- Cabecera del Procedimiento -->
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-3 d-flex align-items-center justify-content-center text-white p-2" style="width: 42px; height: 42px; background: linear-gradient(135deg, {% if sp['color'] == 'primary' %}#059669 0%, #047857 100%{% elif sp['color'] == 'success' %}#10b981 0%, #059669 100%{% elif sp['color'] == 'info' %}#0284c7 0%, #0369a1 100%{% else %}#ef4444 0%, #b91c1c 100%{% endif %});">
+                                <i class="bi {{ sp['icono'] }} fs-5"></i>
+                            </div>
+                            <div>
+                                <span class="badge bg-light text-secondary border px-2 py-0 rounded fs-8">{{ sp['categoria'] }}</span>
+                                <h5 class="fw-bold text-dark mb-0 font-monospace mt-1">{{ sp['nombre'] }}</h5>
+                            </div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8">
+                            <i class="bi bi-check-circle-fill me-1"></i> ACTIVO
+                        </span>
+                    </div>
+
+                    <!-- Título Funcional y Descripción -->
+                    <h6 class="fw-semibold text-dark mb-1">{{ sp['titulo'] }}</h6>
+                    <p class="text-muted fs-7 mb-3">{{ sp['descripcion'] }}</p>
+
+                    <!-- Parámetros y Retorno -->
+                    <div class="p-3 rounded-3 bg-light border mb-3 fs-8">
+                        <div class="mb-1">
+                            <strong class="text-dark"><i class="bi bi-box-arrow-in-right text-primary me-1"></i> Parámetros:</strong>
+                            <code class="text-dark">{{ sp['parametros'] }}</code>
+                        </div>
+                        <div class="mb-1">
+                            <strong class="text-dark"><i class="bi bi-box-arrow-right text-success me-1"></i> Retorno:</strong>
+                            <span class="text-secondary">{{ sp['retorno'] }}</span>
+                        </div>
+                        <div>
+                            <strong class="text-dark"><i class="bi bi-journal-check text-warning me-1"></i> Justificación:</strong>
+                            <span class="text-secondary">{{ sp['justificacion'] }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Metadatos de Creación -->
+                    <div class="d-flex align-items-center gap-3 text-muted fs-8 mb-2">
+                        <span><i class="bi bi-person-gear me-1"></i> {{ sp['definer'] or 'root@localhost' }}</span>
+                        <span><i class="bi bi-calendar3 me-1"></i> {{ sp['creado'] }}</span>
+                    </div>
+                </div>
+
+                <!-- Footer con Botones de Acción Interactivos -->
+                <div class="card-footer bg-light border-0 p-3 d-flex justify-content-between align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-3 fs-8" data-bs-toggle="modal" data-bs-target="#modalDDL-{{ loop.index }}">
+                        <i class="bi bi-code-slash me-1"></i> Ver Código SQL (DDL)
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary rounded-3 fs-8 fw-semibold" onclick="ejecutarProcedimiento('{{ sp['nombre'] }}')">
+                        <i class="bi bi-play-fill me-1"></i> Probar en Vivo (CALL)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Ver Código SQL (DDL) -->
+        <div class="modal fade" id="modalDDL-{{ loop.index }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="modal-header border-0 bg-dark text-white py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-terminal fs-5 text-success"></i>
+                            <h6 class="modal-title fw-bold mb-0 font-monospace">DDL: {{ sp['nombre'] }}</h6>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-0 bg-dark">
+                        <pre class="p-3 m-0 text-success font-monospace fs-8" style="max-height: 400px; overflow-y: auto; background: #0b1320; color: #a7f3d0 !important;">{{ sp['ddl'] }}</pre>
+                    </div>
+                    <div class="modal-footer border-0 bg-light p-2 d-flex justify-content-between">
+                        <small class="text-muted fs-8">Motor de Base de Datos MySQL 8.0 · uraba_pais_db</small>
+                        <button type="button" class="btn btn-sm btn-secondary rounded-3" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Consola de Resultados de Ejecución en Vivo -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4" id="cajaResultadoSP" style="display: none;">
+        <div class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-success rounded-pill px-2 py-1 fs-8">CALL EXECUTED</span>
+                <strong class="font-monospace fs-7 text-white" id="resNombreSP">sp_resumen_indicadores_subregion</strong>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-secondary font-monospace" id="resTiempoSP">0.0 ms</span>
+                <button type="button" class="btn-close btn-close-white btn-sm" onclick="document.getElementById('cajaResultadoSP').style.display='none';"></button>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-table text-primary me-2"></i>Dataset Retornado por MySQL:</h6>
+            <div class="table-responsive rounded-3 border">
+                <table class="table table-hover table-striped align-middle mb-0 fs-8 font-monospace" id="tablaResultadoSP">
+                    <thead class="table-light">
+                        <tr id="headerResultadoSP"></tr>
+                    </thead>
+                    <tbody id="bodyResultadoSP"></tbody>
+                </table>
+            </div>
+            <div class="mt-3 text-muted fs-8 d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-info-circle text-success me-1"></i> Ejecutado exitosamente a través de <code>cursor.callproc()</code> en PyMySQL.</span>
+                <span id="resFilasSP" class="fw-semibold text-dark"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function ejecutarProcedimiento(nombre) {
+    const caja = document.getElementById('cajaResultadoSP');
+    const resNombre = document.getElementById('resNombreSP');
+    const resTiempo = document.getElementById('resTiempoSP');
+    const resFilas = document.getElementById('resFilasSP');
+    const thead = document.getElementById('headerResultadoSP');
+    const tbody = document.getElementById('bodyResultadoSP');
+
+    caja.style.display = 'block';
+    resNombre.innerText = 'CALL ' + nombre + '();';
+    resTiempo.innerText = 'Ejecutando...';
+    resFilas.innerText = '';
+    thead.innerHTML = '<th>Procesando consulta en MySQL...</th>';
+    tbody.innerHTML = '<tr><td><div class="spinner-border spinner-border-sm text-primary me-2"></div> Conectando al motor relacional...</td></tr>';
+
+    caja.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    fetch('/api/stored-procedures/ejecutar/' + encodeURIComponent(nombre), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            resTiempo.innerText = data.tiempo_ms + ' ms';
+            resFilas.innerText = 'Total registros: ' + data.filas_retornadas;
+
+            if (data.datos && data.datos.length > 0) {
+                // Columnas
+                const cols = Object.keys(data.datos[0]);
+                let headerHtml = '';
+                cols.forEach(c => {
+                    headerHtml += '<th class="py-2 text-uppercase">' + c + '</th>';
+                });
+                thead.innerHTML = headerHtml;
+
+                // Filas
+                let bodyHtml = '';
+                data.datos.forEach(row => {
+                    bodyHtml += '<tr>';
+                    cols.forEach(c => {
+                        let val = row[c];
+                        if (val === null || val === undefined) val = '<span class="text-muted">NULL</span>';
+                        bodyHtml += '<td class="py-2">' + val + '</td>';
+                    });
+                    bodyHtml += '</tr>';
+                });
+                tbody.innerHTML = bodyHtml;
+            } else {
+                thead.innerHTML = '<th>Resultado</th>';
+                tbody.innerHTML = '<tr><td class="text-muted">El procedimiento se ejecutó sin devolver filas de datos.</td></tr>';
+            }
+        } else {
+            resTiempo.innerText = 'Error';
+            thead.innerHTML = '<th class="text-danger">Excepción</th>';
+            tbody.innerHTML = '<tr><td class="text-danger">' + (data.mensaje || 'Error en la ejecución') + '</td></tr>';
+        }
+    })
+    .catch(err => {
+        resTiempo.innerText = 'Error';
+        thead.innerHTML = '<th class="text-danger">Error de Conexión</th>';
+        tbody.innerHTML = '<tr><td class="text-danger">' + err + '</td></tr>';
+    });
+}
+</script>
+{% endblock %}

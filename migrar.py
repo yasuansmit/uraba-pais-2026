@@ -15,11 +15,11 @@ conn_mysql = mysql.connector.connect(
 )
 cursor_mysql = conn_mysql.cursor()
 
-# 3. Obtener las tablas
+
 cursor_sqlite.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';")
 tablas = [r[0] for r in cursor_sqlite.fetchall()]
 
-# 4. Migrar datos
+
 for tabla in tablas:
     cursor_sqlite.execute(f"SELECT * FROM {tabla}")
     filas = cursor_sqlite.fetchall()

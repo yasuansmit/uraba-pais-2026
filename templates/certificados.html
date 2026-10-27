@@ -12,20 +12,24 @@
 </div>
 
 <div class="card border-0 p-3 mb-4 bg-white">
-    <div class="row g-2 align-items-center">
+    <form method="GET" action="{{ url_for('certificados') }}" class="row g-2 align-items-center">
         <div class="col-md-8">
             <div class="input-group">
                 <span class="input-group-text bg-light border-0 rounded-start-3"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" id="filtroCertificados" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por nombre, documento o código de folio en tiempo real...">
+                <input type="text" name="q" value="{{ q }}" id="filtroCertificados" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por nombre, documento o código de folio en tiempo real...">
             </div>
         </div>
-        <div class="col-md-4 text-md-end text-muted fs-7">
-            Total disponibles: <strong class="text-dark" id="totalCertificados">{{ beneficiarios|length }}</strong> beneficiarios
+        <div class="col-md-4 d-flex justify-content-md-end align-items-center gap-2 text-muted fs-7">
+            <button type="submit" class="btn btn-sm btn-primary rounded-3 px-3">Buscar</button>
+            {% if q %}
+            <a href="{{ url_for('certificados') }}" class="btn btn-sm btn-outline-danger rounded-3" title="Limpiar búsqueda"><i class="bi bi-x-lg"></i></a>
+            {% endif %}
+            <span>Total: <strong class="text-dark">{{ total }}</strong> beneficiarios</span>
         </div>
-    </div>
+    </form>
 </div>
 
-<div class="card border-0 bg-white overflow-hidden">
+<div class="card border-0 bg-white overflow-hidden shadow-sm rounded-4">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0" id="tablaCertificados">
             <thead>
@@ -65,6 +69,35 @@
             </tbody>
         </table>
     </div>
+
+    {% if total_paginas > 1 %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light flex-wrap gap-2">
+        <span class="text-muted fs-7">Mostrando página {{ pagina }} de {{ total_paginas }} (Total: {{ total }} beneficiarios)</span>
+        <nav aria-label="Paginación de certificados">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+                    <a class="page-link rounded-start-3" href="{{ url_for('certificados', pagina=pagina-1, q=q) }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% for p in range(1, total_paginas + 1) %}
+                    {% if p == pagina %}
+                        <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                    {% elif p >= pagina - 2 and p <= pagina + 2 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('certificados', pagina=p, q=q) }}">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+                    <a class="page-link rounded-end-3" href="{{ url_for('certificados', pagina=pagina+1, q=q) }}">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
 </div>
 
 <script>

@@ -191,14 +191,24 @@
                     </div>
 
                     <div class="col-4 text-center">
-                        <!-- QR dinámico generado mediante API segura QRServer -->
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=95x95&data=URABA-PAIS-VERIFICADO:DOC={{ b['num_doc'] }}-COD={{ b['codigo_interno'] }}" alt="Código QR Verificación" style="width: 85px; height: 85px; border: 1px solid #e2e8f0; padding: 4px; border-radius: 8px;">
-                        <span class="d-block text-muted mt-1" style="font-size: 0.72rem;">Escanear para verificar validez</span>
+                        {% set url_verificar = url_for('verificar_certificado_publico', codigo=b['codigo_interno'], _external=True) %}
+                        <!-- QR dinámico enlazado al portal de validación pública -->
+                        <a href="{{ url_verificar }}" target="_blank" title="Clic para validar autenticidad en portal oficial" class="text-decoration-none">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ url_verificar | urlencode }}" alt="Código QR de Validación Digital" style="width: 82px; height: 82px; border: 1.5px solid #059669; padding: 3px; border-radius: 8px; background: #fff;">
+                        </a>
+                        <span class="d-block text-success fw-bold mt-1" style="font-size: 0.72rem;">
+                            <i class="bi bi-patch-check-fill me-1"></i>Escanear o clic para validar
+                        </span>
+                        {% if hash_cert %}
+                        <span class="d-block text-muted font-monospace mt-1" style="font-size: 0.65rem;">
+                            HASH: {{ hash_cert }}
+                        </span>
+                        {% endif %}
                     </div>
                 </div>
 
                 <div class="mt-4 pt-2 border-top text-center text-muted" style="font-size: 0.7rem;">
-                    Expedido en la Subregión de Urabá · Documento generado electrónicamente con firma institucional y código criptográfico de autenticidad.
+                    Expedido en la Subregión de Urabá · Documento oficial con validez jurídica según Ley 527 de 1999 · Validación pública en <strong>{{ request.host_url }}verificar/{{ b['codigo_interno'] }}</strong>
                 </div>
             </div>
         </div>

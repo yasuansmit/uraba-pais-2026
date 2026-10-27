@@ -1,79 +1,457 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-        <h3 class="fw-bold text-dark mb-1">Módulo de Seguimientos</h3>
-        <p class="text-muted mb-0">Monitoreo continuo y compromisos de casos</p>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                <i class="bi bi-kanban me-1"></i> Gestión Ágil y Monitoreo
+            </span>
+        </div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Módulo de Seguimientos y Compromisos</h3>
+        <p class="text-muted fs-7 mb-0">Gestión de casos sociales, visitas domiciliarias y compromisos territoriales</p>
     </div>
-    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalSeguimientoGeneral"><i class="bi bi-plus-lg me-1"></i>  Nuevo Seguimiento</button>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <!-- Selector de Vista: Tabla vs Kanban -->
+        <div class="btn-group shadow-xs p-1 bg-white rounded-3 border" role="group" aria-label="Cambio de Vista">
+            <button type="button" class="btn btn-sm btn-primary rounded-2 px-3 fw-semibold" id="btnVistaTabla" onclick="cambiarVistaSeguimiento('tabla')">
+                <i class="bi bi-table me-1"></i> Tabla
+            </button>
+            <button type="button" class="btn btn-sm btn-light text-secondary rounded-2 px-3 fw-semibold" id="btnVistaKanban" onclick="cambiarVistaSeguimiento('kanban')">
+                <i class="bi bi-kanban-fill text-warning me-1"></i> Tablero Kanban
+            </button>
+        </div>
+        <button class="btn btn-primary rounded-3 fs-7 px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalSeguimientoGeneral">
+            <i class="bi bi-plus-lg me-1"></i> + Nuevo Seguimiento
+        </button>
+    </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th class="ps-4">Beneficiario</th>
-                    <th>Fecha Registro</th>
-                    <th>Avance del Caso</th>
-                    <th>Próxima Acción</th>
-                    <th>Estado</th>
-                    {% if es_admin %}<th class="text-end pe-4">Acciones</th>{% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for s in seguimientos %}
-                <tr>
-                    <td class="ps-4">
-                        <strong class="text-primary">{{ s['beneficiario_nombre'] }}</strong>
-                        <br><small class="text-muted">Cód: {{ s['codigo_interno'] }}</small>
-                    </td>
-                    <td>{{ s['fecha'] }}</td>
-                    <td>{{ s['avance'] }}</td>
-                    <td>{{ s['proxima_accion'] }} <br><small class="text-secondary">Contacto: {{ s['fecha_proximo_contacto'] or 'N/A' }}</small></td>
-                    <td><span class="badge bg-warning-subtle text-warning border">{{ s['estado_accion'] }}</span></td>
-                    {% if es_admin %}
-                    <td class="text-end pe-4">
-                        <form action="{{ url_for('eliminar_seguimiento', id=s['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar este seguimiento?');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Eliminar seguimiento">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
-                        </form>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="{% if es_admin %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No existen compromisos de seguimiento registrados.</td>
-                </tr>
+<!-- Barra de Búsqueda y Filtros -->
+<div class="card border-0 p-3 mb-4 bg-white shadow-sm rounded-4">
+    <form method="GET" action="{{ url_for('seguimientos') }}" class="row g-2 align-items-center">
+        <div class="col-lg-7 col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ q }}" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por beneficiario, doc, código, avance o compromiso...">
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-5 col-sm-10">
+            <select name="estado" class="form-select bg-light border-0 rounded-3 fs-7" onchange="this.form.submit()">
+                <option value="">-- Todos los estados de acción --</option>
+                {% for est in estados_catalogo %}
+                    <option value="{{ est }}" {% if estado_filtro == est %}selected{% endif %}>
+                        {{ est }}
+                    </option>
                 {% endfor %}
-            </tbody>
-        </table>
+            </select>
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-2 d-flex gap-1">
+            <button type="submit" class="btn btn-primary w-100 rounded-3 fw-semibold fs-7" title="Buscar / Filtrar">
+                <i class="bi bi-funnel-fill"></i>
+            </button>
+            {% if q or estado_filtro %}
+                <a href="{{ url_for('seguimientos') }}" class="btn btn-outline-danger rounded-3" title="Limpiar filtros">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if q or estado_filtro %}
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top fs-8 text-muted">
+        <span><i class="bi bi-funnel text-success me-1"></i> Filtros activos:</span>
+        {% if q %}
+            <span class="badge bg-light text-dark border rounded-pill">Búsqueda: "{{ q }}"</span>
+        {% endif %}
+        {% if estado_filtro %}
+            <span class="badge bg-light text-dark border rounded-pill">Estado: {{ estado_filtro }}</span>
+        {% endif %}
+        <a href="{{ url_for('seguimientos') }}" class="text-danger text-decoration-none ms-auto fw-semibold">
+            <i class="bi bi-trash3 me-1"></i> Restablecer filtros
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ========================================== -->
+<!-- 1. VISTA TABLA (POR DEFECTO)               -->
+<!-- ========================================== -->
+<div id="contenedorTabla">
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Beneficiario</th>
+                        <th>Fecha Registro</th>
+                        <th>Avance del Caso</th>
+                        <th>Próxima Acción Programada</th>
+                        <th>Estado de Acción</th>
+                        {% if es_admin %}<th class="text-end pe-4">Acciones</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in seguimientos %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-xs" style="width: 32px; height: 32px; flex-shrink: 0; background: linear-gradient(135deg, var(--sidebar-active) 0%, var(--primary-color) 100%); font-size: 0.75rem;">
+                                    {{ (s['beneficiario_nombre'][0] if s['beneficiario_nombre'] else 'S') | upper }}
+                                </div>
+                                <div>
+                                    <strong class="text-dark fs-7">{{ s['beneficiario_nombre'] }}</strong>
+                                    <small class="text-muted d-block font-monospace fs-8">Folio: {{ s['codigo_interno'] }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="fs-8 text-muted font-monospace"><i class="bi bi-calendar3 me-1 text-success"></i>{{ s['fecha'] }}</td>
+                        <td class="fs-7 text-dark" style="max-width: 280px;">{{ s['avance'] }}</td>
+                        <td>
+                            <strong class="text-dark fs-7 d-block">{{ s['proxima_accion'] }}</strong>
+                            <small class="text-secondary fs-8"><i class="bi bi-clock me-1 text-primary"></i>Contacto: {{ s['fecha_proximo_contacto'] or 'N/A' }}</small>
+                        </td>
+                        <td>
+                            <span class="badge {% if s['estado_accion'] == 'Finalizada' %}bg-success-subtle text-success border-success-subtle{% elif s['estado_accion'] == 'En proceso' %}bg-primary-subtle text-primary border-primary-subtle{% else %}bg-warning-subtle text-warning border-warning-subtle{% endif %} border px-2 py-1 rounded-pill fs-8 fw-semibold">
+                                {{ s['estado_accion'] }}
+                            </span>
+                        </td>
+                        {% if es_admin %}
+                        <td class="text-end pe-4">
+                            <form action="{{ url_for('eliminar_seguimiento', id=s['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar este seguimiento?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Eliminar seguimiento">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{% if es_admin %}6{% else %}5{% endif %}" class="text-center py-5 text-muted">No existen compromisos de seguimiento con los criterios seleccionados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if total_paginas > 1 %}
+        <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light flex-wrap gap-2">
+            <span class="text-muted fs-7">Mostrando página {{ pagina }} de {{ total_paginas }} (Total: {{ total }} seguimientos)</span>
+            <nav aria-label="Paginación de seguimientos">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+                        <a class="page-link rounded-start-3" href="{{ url_for('seguimientos', pagina=pagina-1, q=q, estado=estado_filtro) }}">
+                            <i class="bi bi-chevron-left"></i> Anterior
+                        </a>
+                    </li>
+                    {% for p in range(1, total_paginas + 1) %}
+                        {% if p == pagina %}
+                            <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                        {% elif p >= pagina - 2 and p <= pagina + 2 %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('seguimientos', pagina=p, q=q, estado=estado_filtro) }}">{{ p }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+                        <a class="page-link rounded-end-3" href="{{ url_for('seguimientos', pagina=pagina+1, q=q, estado=estado_filtro) }}">
+                            Siguiente <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- 2. VISTA TABLERO KANBAN INTERACTIVO       -->
+<!-- ========================================== -->
+<div id="contenedorKanban" style="display: none;">
+    <div class="row g-3">
+        <!-- Columna 1: PENDIENTES -->
+        <div class="col-lg-4">
+            <div class="p-3 rounded-4 shadow-sm" style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.25);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                            <i class="bi bi-clock-fill fs-8"></i>
+                        </div>
+                        <strong class="text-dark fs-7">1. Pendientes</strong>
+                    </div>
+                    <span class="badge bg-warning text-dark rounded-pill px-2" id="badgeCountPendiente">{{ kanban_pendientes|length }}</span>
+                </div>
+
+                <div class="kanban-column d-flex flex-column gap-3" id="columnaPendiente" ondragover="permitirSoltar(event)" ondrop="soltarTarjeta(event, 'Pendiente')">
+                    {% for k in kanban_pendientes %}
+                    <div class="card border-0 p-3 bg-white rounded-3 shadow-xs kanban-card" id="tarjeta-{{ k['id'] }}" draggable="true" ondragstart="iniciarArrastre(event, {{ k['id'] }})">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge font-monospace fs-8" style="background: rgba(4, 120, 87, 0.08); color: #047857;">{{ k['codigo_interno'] }}</span>
+                            <span class="badge bg-light text-secondary border fs-8"><i class="bi bi-geo-alt me-1"></i>{{ k['municipio'] or 'Urabá' }}</span>
+                        </div>
+                        <strong class="text-dark fs-7 mb-1 d-block">{{ k['beneficiario_nombre'] }}</strong>
+                        <p class="text-muted fs-8 mb-2 line-clamp-2" title="{{ k['avance'] }}">{{ k['avance'] }}</p>
+                        <div class="p-2 rounded-2 mb-2 bg-light border-start border-3 border-warning fs-8">
+                            <strong class="d-block text-dark">{{ k['proxima_accion'] }}</strong>
+                            <small class="text-danger"><i class="bi bi-calendar-event me-1"></i>Contacto: {{ k['fecha_proximo_contacto'] or 'Sin fecha' }}</small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="fs-8 text-muted"><i class="bi bi-calendar3 me-1"></i>{{ k['fecha'] }}</span>
+                            <div class="dropdown">
+                                <button class="btn btn-xs btn-outline-secondary rounded-pill px-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Mover a
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end fs-8">
+                                    <li><button class="dropdown-item" onclick="moverSeguimientoApi({{ k['id'] }}, 'En proceso')"><i class="bi bi-arrow-right-circle text-primary me-1"></i> En proceso</button></li>
+                                    <li><button class="dropdown-item" onclick="moverSeguimientoApi({{ k['id'] }}, 'Finalizada')"><i class="bi bi-check-circle-fill text-success me-1"></i> Finalizada</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted fs-8">Sin casos pendientes</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna 2: EN PROCESO -->
+        <div class="col-lg-4">
+            <div class="p-3 rounded-4 shadow-sm" style="background: rgba(2, 132, 199, 0.05); border: 1px solid rgba(2, 132, 199, 0.25);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                            <i class="bi bi-gear-fill fs-8"></i>
+                        </div>
+                        <strong class="text-dark fs-7">2. En Proceso</strong>
+                    </div>
+                    <span class="badge bg-primary rounded-pill px-2" id="badgeCountProceso">{{ kanban_en_proceso|length }}</span>
+                </div>
+
+                <div class="kanban-column d-flex flex-column gap-3" id="columnaEnProceso" ondragover="permitirSoltar(event)" ondrop="soltarTarjeta(event, 'En proceso')">
+                    {% for k in kanban_en_proceso %}
+                    <div class="card border-0 p-3 bg-white rounded-3 shadow-xs kanban-card" id="tarjeta-{{ k['id'] }}" draggable="true" ondragstart="iniciarArrastre(event, {{ k['id'] }})">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge font-monospace fs-8" style="background: rgba(4, 120, 87, 0.08); color: #047857;">{{ k['codigo_interno'] }}</span>
+                            <span class="badge bg-light text-secondary border fs-8"><i class="bi bi-geo-alt me-1"></i>{{ k['municipio'] or 'Urabá' }}</span>
+                        </div>
+                        <strong class="text-dark fs-7 mb-1 d-block">{{ k['beneficiario_nombre'] }}</strong>
+                        <p class="text-muted fs-8 mb-2 line-clamp-2" title="{{ k['avance'] }}">{{ k['avance'] }}</p>
+                        <div class="p-2 rounded-2 mb-2 bg-light border-start border-3 border-primary fs-8">
+                            <strong class="d-block text-dark">{{ k['proxima_accion'] }}</strong>
+                            <small class="text-primary"><i class="bi bi-calendar-event me-1"></i>Contacto: {{ k['fecha_proximo_contacto'] or 'Sin fecha' }}</small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="fs-8 text-muted"><i class="bi bi-calendar3 me-1"></i>{{ k['fecha'] }}</span>
+                            <div class="dropdown">
+                                <button class="btn btn-xs btn-outline-secondary rounded-pill px-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Mover a
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end fs-8">
+                                    <li><button class="dropdown-item" onclick="moverSeguimientoApi({{ k['id'] }}, 'Pendiente')"><i class="bi bi-arrow-left-circle text-warning me-1"></i> Pendiente</button></li>
+                                    <li><button class="dropdown-item" onclick="moverSeguimientoApi({{ k['id'] }}, 'Finalizada')"><i class="bi bi-check-circle-fill text-success me-1"></i> Finalizada</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted fs-8">Sin casos en proceso</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna 3: FINALIZADAS -->
+        <div class="col-lg-4">
+            <div class="p-3 rounded-4 shadow-sm" style="background: rgba(5, 150, 105, 0.05); border: 1px solid rgba(5, 150, 105, 0.25);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                            <i class="bi bi-check-lg fs-8"></i>
+                        </div>
+                        <strong class="text-dark fs-7">3. Finalizadas / Favorables</strong>
+                    </div>
+                    <span class="badge bg-success rounded-pill px-2" id="badgeCountFinalizada">{{ kanban_finalizadas|length }}</span>
+                </div>
+
+                <div class="kanban-column d-flex flex-column gap-3" id="columnaFinalizada" ondragover="permitirSoltar(event)" ondrop="soltarTarjeta(event, 'Finalizada')">
+                    {% for k in kanban_finalizadas %}
+                    <div class="card border-0 p-3 bg-white rounded-3 shadow-xs kanban-card" id="tarjeta-{{ k['id'] }}" draggable="true" ondragstart="iniciarArrastre(event, {{ k['id'] }})">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge font-monospace fs-8" style="background: rgba(4, 120, 87, 0.08); color: #047857;">{{ k['codigo_interno'] }}</span>
+                            <span class="badge bg-light text-secondary border fs-8"><i class="bi bi-geo-alt me-1"></i>{{ k['municipio'] or 'Urabá' }}</span>
+                        </div>
+                        <strong class="text-dark fs-7 mb-1 d-block">{{ k['beneficiario_nombre'] }}</strong>
+                        <p class="text-muted fs-8 mb-2 line-clamp-2" title="{{ k['avance'] }}">{{ k['avance'] }}</p>
+                        <div class="p-2 rounded-2 mb-2 bg-light border-start border-3 border-success fs-8">
+                            <strong class="d-block text-dark">{{ k['proxima_accion'] }}</strong>
+                            <small class="text-success"><i class="bi bi-check2-circle me-1"></i>Caso culminado</small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="fs-8 text-muted"><i class="bi bi-calendar3 me-1"></i>{{ k['fecha'] }}</span>
+                            <div class="dropdown">
+                                <button class="btn btn-xs btn-outline-secondary rounded-pill px-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Mover a
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end fs-8">
+                                    <li><button class="dropdown-item" onclick="moverSeguimientoApi({{ k['id'] }}, 'Pendiente')"><i class="bi bi-arrow-left-circle text-warning me-1"></i> Pendiente</button></li>
+                                    <li><button class="dropdown-item" onclick="moverSeguimientoApi({{ k['id'] }}, 'En proceso')"><i class="bi bi-arrow-right-circle text-primary me-1"></i> En proceso</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted fs-8">Sin casos finalizados</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Modal Seguimiento General -->
 <div class="modal fade" id="modalSeguimientoGeneral" tabindex="-1">
     <div class="modal-dialog">
-        <form action="{{ url_for('crear_seguimiento_general') }}" method="POST" class="modal-content rounded-4">
-            <div class="modal-header"><h5 class="modal-title fw-bold">Nuevo Seguimiento de Caso</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body">
+        <form action="{{ url_for('crear_seguimiento_general') }}" method="POST" class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-journal-plus text-primary me-2"></i>Nuevo Seguimiento de Caso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Beneficiario</label>
-                    <select name="beneficiario_id" class="form-select" required>
+                    <label class="form-label fw-semibold fs-7">Beneficiario</label>
+                    <select name="beneficiario_id" class="form-select bg-light border-0 fs-7" required>
                         {% for b in beneficiarios %}
                         <option value="{{ b['id'] }}">{{ b['nombres'] }} {{ b['apellidos'] }} ({{ b['num_doc'] }})</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="mb-3"><label class="form-label fw-semibold">Fecha</label><input type="date" name="fecha" class="form-control" required></div>
-                <div class="mb-3"><label class="form-label fw-semibold">Avance Observado</label><textarea name="avance" class="form-control" rows="3" required></textarea></div>
-                <div class="mb-3"><label class="form-label fw-semibold">Próxima Acción Programada</label><input type="text" name="proxima_accion" class="form-control"></div>
-                <div class="mb-3"><label class="form-label fw-semibold">Fecha de Próximo Contacto</label><input type="date" name="fecha_proximo_contacto" class="form-control"></div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold fs-7">Fecha de Registro</label>
+                    <input type="date" name="fecha" class="form-control bg-light border-0 fs-7" required id="inputFechaSeguimiento">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold fs-7">Avance Observado / Hallazgos</label>
+                    <textarea name="avance" class="form-control bg-light border-0 fs-7" rows="3" placeholder="Describa el estado de salud, vivienda o avance del compromiso..." required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold fs-7">Próxima Acción Programada</label>
+                    <input type="text" name="proxima_accion" class="form-control bg-light border-0 fs-7" placeholder="Ej: Visita domiciliaria de control...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold fs-7">Fecha de Próximo Contacto</label>
+                    <input type="date" name="fecha_proximo_contacto" class="form-control bg-light border-0 fs-7">
+                </div>
             </div>
-            <div class="modal-footer"><button type="submit" class="btn btn-primary rounded-3">Guardar Seguimiento</button></div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-3 px-3" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-3 px-4 fw-semibold">Guardar Seguimiento</button>
+            </div>
         </form>
     </div>
 </div>
+
+<script>
+let idArrastreActual = null;
+
+function iniciarArrastre(ev, id) {
+    idArrastreActual = id;
+    ev.dataTransfer.setData("text/plain", id);
+}
+
+function permitirSoltar(ev) {
+    ev.preventDefault();
+}
+
+function soltarTarjeta(ev, nuevoEstado) {
+    ev.preventDefault();
+    const id = ev.dataTransfer.getData("text/plain") || idArrastreActual;
+    if (id) {
+        moverSeguimientoApi(parseInt(id, 10), nuevoEstado);
+    }
+}
+
+function moverSeguimientoApi(id, nuevoEstado) {
+    const cardEl = document.getElementById('tarjeta-' + id);
+    if (cardEl) {
+        cardEl.style.opacity = '0.5';
+    }
+
+    fetch('/api/seguimiento/' + id + '/estado', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ estado: nuevoEstado })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            // Mover tarjeta al contenedor destino
+            let targetColId = 'columnaPendiente';
+            if (nuevoEstado === 'En proceso') targetColId = 'columnaEnProceso';
+            else if (nuevoEstado === 'Finalizada') targetColId = 'columnaFinalizada';
+
+            const colTarget = document.getElementById(targetColId);
+            if (cardEl && colTarget) {
+                cardEl.style.opacity = '1';
+                colTarget.prepend(cardEl);
+            }
+            // Recargar silenciosamente si fuera necesario o actualizar contadores
+            actualizarContadoresKanban();
+        } else {
+            alert('Error al actualizar estado: ' + (data.error || 'Error desconocido'));
+            if (cardEl) cardEl.style.opacity = '1';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        if (cardEl) cardEl.style.opacity = '1';
+    });
+}
+
+function actualizarContadoresKanban() {
+    const colPend = document.getElementById('columnaPendiente');
+    const colProc = document.getElementById('columnaEnProceso');
+    const colFin = document.getElementById('columnaFinalizada');
+
+    if (colPend) document.getElementById('badgeCountPendiente').textContent = colPend.querySelectorAll('.kanban-card').length;
+    if (colProc) document.getElementById('badgeCountProceso').textContent = colProc.querySelectorAll('.kanban-card').length;
+    if (colFin) document.getElementById('badgeCountFinalizada').textContent = colFin.querySelectorAll('.kanban-card').length;
+}
+
+function cambiarVistaSeguimiento(tipo) {
+    const contenedorTabla = document.getElementById('contenedorTabla');
+    const contenedorKanban = document.getElementById('contenedorKanban');
+    const btnTabla = document.getElementById('btnVistaTabla');
+    const btnKanban = document.getElementById('btnVistaKanban');
+
+    if (tipo === 'kanban') {
+        contenedorTabla.style.display = 'none';
+        contenedorKanban.style.display = 'block';
+        btnKanban.className = 'btn btn-sm btn-primary rounded-2 px-3 fw-semibold';
+        btnTabla.className = 'btn btn-sm btn-light text-secondary rounded-2 px-3 fw-semibold';
+        localStorage.setItem('vista_seguimiento_uraba', 'kanban');
+    } else {
+        contenedorTabla.style.display = 'block';
+        contenedorKanban.style.display = 'none';
+        btnTabla.className = 'btn btn-sm btn-primary rounded-2 px-3 fw-semibold';
+        btnKanban.className = 'btn btn-sm btn-light text-secondary rounded-2 px-3 fw-semibold';
+        localStorage.setItem('vista_seguimiento_uraba', 'tabla');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const inputFecha = document.getElementById('inputFechaSeguimiento');
+    if (inputFecha && !inputFecha.value) {
+        inputFecha.value = new Date().toISOString().split('T')[0];
+    }
+    const vistaGuardada = localStorage.getItem('vista_seguimiento_uraba');
+    if (vistaGuardada === 'kanban') {
+        cambiarVistaSeguimiento('kanban');
+    }
+});
+</script>
 {% endblock %}

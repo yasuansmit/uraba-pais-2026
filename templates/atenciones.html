@@ -1,12 +1,61 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
         <h3 class="fw-bold text-dark mb-1">Registro de Atenciones y Ayudas</h3>
         <p class="text-muted mb-0">Registra lo que se entregó o realizó. El seguimiento se registra en otro módulo.</p>
     </div>
-    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalAtencionGeneral"><i class="bi bi-plus-lg me-1"></i>  Nueva Atención</button>
+    <button class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#modalAtencionGeneral">
+        <i class="bi bi-plus-lg me-1"></i> Nueva Atención
+    </button>
+</div>
+
+<!-- Barra de Búsqueda y Filtros -->
+<div class="card border-0 p-3 mb-4 bg-white shadow-sm rounded-4">
+    <form method="GET" action="{{ url_for('atenciones') }}" class="row g-2 align-items-center">
+        <div class="col-lg-7 col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ q }}" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por beneficiario, doc, código, tipo o descripción...">
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-5 col-sm-10">
+            <select name="tipo" class="form-select bg-light border-0 rounded-3 fs-7" onchange="this.form.submit()">
+                <option value="">-- Todos los tipos de atención --</option>
+                {% for tip in tipos_catalogo %}
+                    <option value="{{ tip }}" {% if tipo_filtro == tip %}selected{% endif %}>
+                        {{ tip }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-2 d-flex gap-1">
+            <button type="submit" class="btn btn-primary w-100 rounded-3 fw-semibold fs-7" title="Buscar / Filtrar">
+                <i class="bi bi-funnel-fill"></i>
+            </button>
+            {% if q or tipo_filtro %}
+                <a href="{{ url_for('atenciones') }}" class="btn btn-outline-danger rounded-3" title="Limpiar filtros">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if q or tipo_filtro %}
+    <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-2 border-top fs-8 text-muted">
+        <span><i class="bi bi-funnel text-success me-1"></i> Filtros activos:</span>
+        {% if q %}
+            <span class="badge bg-light text-dark border rounded-pill">Búsqueda: "{{ q }}"</span>
+        {% endif %}
+        {% if tipo_filtro %}
+            <span class="badge bg-light text-dark border rounded-pill">Tipo: {{ tipo_filtro }}</span>
+        {% endif %}
+        <a href="{{ url_for('atenciones') }}" class="text-danger text-decoration-none ms-auto fw-semibold">
+            <i class="bi bi-trash3 me-1"></i> Restablecer filtros
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
@@ -47,11 +96,41 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="{% if es_admin %}7{% else %}6{% endif %}" class="text-center py-5 text-muted">No se registran atenciones prestadas.</td>
+                    <td colspan="{% if es_admin %}7{% else %}6{% endif %}" class="text-center py-5 text-muted">No se registran atenciones prestadas con los criterios seleccionados.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    <!-- Paginador siempre visible -->
+    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light flex-wrap gap-2">
+        <span class="text-muted fs-7">
+            <i class="bi bi-card-list me-1 text-primary"></i> Mostrando página <strong>{{ pagina }}</strong> de <strong>{{ total_paginas }}</strong> (Total: <strong>{{ total }}</strong> atenciones registradas)
+        </span>
+        <nav aria-label="Paginación de atenciones">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+                    <a class="page-link rounded-start-3" href="{{ url_for('atenciones', pagina=pagina-1, q=q, tipo=tipo_filtro) }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% for p in range(1, total_paginas + 1) %}
+                    {% if p == pagina %}
+                        <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                    {% elif p >= pagina - 2 and p <= pagina + 2 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('atenciones', pagina=p, q=q, tipo=tipo_filtro) }}">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+                    <a class="page-link rounded-end-3" href="{{ url_for('atenciones', pagina=pagina+1, q=q, tipo=tipo_filtro) }}">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 </div>
 
@@ -69,17 +148,16 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label fw-semibold">Tipo de Atención</label>
+                    <label class="form-label fw-semibold">Tipo de Atención o Ayuda</label>
                     <select name="tipo" id="selectTipoAtencionGen" class="form-select" onchange="toggleOtroTipoAtencionGen(this.value)" required>
-                        <option value="" disabled selected>-- Selecciona un tipo de atención --</option>
+                        <option value="" disabled selected>-- Selecciona un tipo --</option>
+                        <option value="Atención Psicosocial">Atención Psicosocial</option>
                         <option value="Asesoría Jurídica">Asesoría Jurídica</option>
-                        <option value="Apoyo Psicosocial">Apoyo Psicosocial</option>
                         <option value="Ayuda Humanitaria">Ayuda Humanitaria</option>
-                        <option value="Atención Médica / Salud">Atención Médica / Salud</option>
-                        <option value="Capacitación / Taller">Capacitación / Taller</option>
+                        <option value="Taller de Formación">Taller de Formación</option>
                         <option value="Orientación Vocacional / Empleo">Orientación Vocacional / Empleo</option>
                         <option value="Entrega de Subsidio o Insumo">Entrega de Subsidio o Insumo</option>
-                        <option value="Revision">Revisión o Verificación</option>
+                        <option value="Revisión">Revisión o Verificación</option>
                         <option value="__otro__">+ Otro (Escribir personalizado...)</option>
                     </select>
                     <input type="text" id="inputOtroTipoAtencionGen" class="form-control mt-2 d-none" placeholder="Escribe el tipo de atención">

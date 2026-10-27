@@ -5,74 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URABÁ-PAÍS 2026 | Iniciar Sesión</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-emerald: #059669;
+            --dark-emerald: #062e22;
+        }
         body {
-            background: linear-gradient(135deg, #062e22 0%, #031c15 100%);
+            background: radial-gradient(circle at 15% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 45%),
+                        radial-gradient(circle at 85% 80%, rgba(5, 150, 105, 0.15) 0%, transparent 45%),
+                        linear-gradient(135deg, #041f17 0%, #062e22 50%, #091a14 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Inter', sans-serif;
             color: #0f172a;
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
         }
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Outfit', sans-serif;
         }
+        .colombia-ribbon {
+            height: 4px;
+            width: 100%;
+            background: linear-gradient(to right, #FCD116 50%, #003893 50%, #003893 75%, #CE1126 75%);
+        }
         .card-login {
             width: 100%;
             max-width: 440px;
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.15);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-login:hover {
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(16, 185, 129, 0.25);
         }
         .brand-badge {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            width: 56px;
-            height: 56px;
+            width: 62px;
+            height: 62px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
         .btn-primary {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            border: none;
-            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);
             font-weight: 600;
-            transition: all 0.2s ease;
+            padding: 12px;
+            border-radius: 12px;
+            transition: all 0.25s ease;
         }
         .btn-primary:hover {
-            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
-            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+            box-shadow: 0 8px 20px rgba(5, 150, 105, 0.45);
+            transform: translateY(-2px);
+        }
+        .form-control {
+            border: 1px solid #cbd5e1;
+            padding: 11px 14px;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
         }
         .form-control:focus {
             border-color: #059669;
-            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+            background-color: #ffffff;
+        }
+        .input-group-text {
+            border-color: #cbd5e1;
+            background-color: #f8fafc;
+        }
+        .quick-access-box {
+            background: rgba(5, 150, 105, 0.04);
+            border: 1px dashed rgba(5, 150, 105, 0.25);
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+        .security-shield-icon {
+            animation: pulse-glow 3s infinite;
+        }
+        @keyframes pulse-glow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <div class="container d-flex justify-content-center p-3">
-        <div class="card card-login p-4 p-sm-5 bg-white">
+
+    <div class="card-login">
+        <!-- Cinta Tricolor Institucional -->
+        <div class="colombia-ribbon"></div>
+
+        <div class="p-4 p-sm-5">
+            <!-- Barra de Retorno y Seguridad -->
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+                <a href="{{ url_for('landing') }}" class="btn btn-sm btn-light border rounded-pill px-3 py-1 text-muted text-decoration-none d-inline-flex align-items-center gap-1 shadow-xs" title="Volver al portal">
+                    <i class="bi bi-arrow-left"></i>
+                    <span class="small fw-semibold">Volver atrás</span>
+                </a>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill small d-flex align-items-center gap-1">
+                    <i class="bi bi-shield-lock-fill"></i> Acceso Seguro SSL
+                </span>
+            </div>
+
+            <!-- Identidad de Marca -->
             <div class="text-center mb-4">
-                <div class="brand-badge mb-3">
+                <div class="brand-badge mb-3 security-shield-icon">
                     <i class="bi bi-shield-fill-check fs-2 text-white"></i>
                 </div>
                 <h3 class="fw-bold mb-1 text-dark" style="letter-spacing: -0.02em;">URABÁ-PAÍS</h3>
-                <p class="text-muted small mb-0">Sistema Integral de Gestión Social 2026</p>
+                <p class="text-muted small mb-0">Sistema Integral de Gestión Social · 2026</p>
+                <span class="badge bg-light text-secondary border rounded-pill px-2 py-1 mt-1 fs-8">
+                    Subregión de Urabá · Antioquia
+                </span>
             </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show small mb-3 rounded-3" role="alert">
-                            {{ message }}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show small mb-3 rounded-3 shadow-xs" role="alert">
+                            <i class="bi bi-info-circle-fill me-1"></i> {{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
@@ -81,38 +151,79 @@
 
             <form action="{{ url_for('login') }}" method="POST">
                 <div class="mb-3">
-                    <label for="correo" class="form-label text-secondary fw-semibold small">Correo Electrónico</label>
+                    <label for="correo" class="form-label text-dark fw-semibold small">Correo Electrónico</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light text-muted border-end-0 rounded-start-3"><i class="bi bi-envelope"></i></span>
-                        <input type="email" class="form-control bg-light border-start-0 rounded-end-3" id="correo" name="correo" placeholder="admin@uraba.gov.co" required autofocus>
+                        <span class="input-group-text text-muted border-end-0 rounded-start-3"><i class="bi bi-envelope-fill text-success"></i></span>
+                        <input type="email" class="form-control border-start-0 rounded-end-3" id="correo" name="correo" placeholder="admin@uraba.gov.co" required autofocus>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label for="password" class="form-label text-secondary fw-semibold small">Contraseña</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="password" class="form-label text-dark fw-semibold small mb-1">Contraseña</label>
+                    </div>
                     <div class="input-group">
-                        <span class="input-group-text bg-light text-muted border-end-0 rounded-start-3"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control bg-light border-start-0 rounded-end-3" id="password" name="password" placeholder="••••••••" required>
+                        <span class="input-group-text text-muted border-end-0 rounded-start-3"><i class="bi bi-lock-fill text-success"></i></span>
+                        <input type="password" class="form-control border-start-0 border-end-0" id="password" name="password" placeholder="••••••••" required>
+                        <button type="button" class="btn btn-light border border-start-0 rounded-end-3" onclick="togglePassVisibility()" id="btnToggleEye" title="Mostrar/ocultar contraseña">
+                            <i class="bi bi-eye text-muted" id="iconEye"></i>
+                        </button>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2 rounded-3 shadow-sm">
-                    Ingresar al Sistema
+                <button type="submit" class="btn btn-primary w-100 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                    <span>Ingresar al Sistema</span>
+                    <i class="bi bi-arrow-right"></i>
                 </button>
             </form>
 
-            <div class="mt-4 p-3 rounded-3 small" style="background: rgba(4, 120, 87, 0.05); border: 1px dashed rgba(4, 120, 87, 0.2);">
-                <strong class="d-block text-dark mb-1"><i class="bi bi-info-circle me-1 text-success"></i> Acceso Rápido</strong>
-                <div class="text-muted">Admin: <code class="text-dark">admin@uraba.gov.co</code> / <code>1234</code></div>
-                <div class="text-muted">Funcionario: <code class="text-dark">funcionario@uraba.gov.co</code> / <code>1234</code></div>
+            <div class="quick-access-box mt-4">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-key-fill text-success"></i>
+                    <strong class="text-dark small">Credenciales de Acceso Rápido</strong>
+                </div>
+                <div class="d-flex justify-content-between align-items-center small py-1 border-bottom border-light-subtle">
+                    <span class="text-muted">Administrador:</span>
+                    <button type="button" class="btn btn-xs btn-outline-success border-0 p-0 font-monospace text-decoration-underline" onclick="llenarLogin('admin@uraba.gov.co', '1234')">
+                        admin@uraba.gov.co / 1234
+                    </button>
+                </div>
+                <div class="d-flex justify-content-between align-items-center small pt-1">
+                    <span class="text-muted">Funcionario:</span>
+                    <button type="button" class="btn btn-xs btn-outline-success border-0 p-0 font-monospace text-decoration-underline" onclick="llenarLogin('funcionario@uraba.gov.co', '1234')">
+                        funcionario@uraba.gov.co / 1234
+                    </button>
+                </div>
             </div>
 
             <div class="text-center mt-4 border-top pt-3">
-                <small class="text-muted fs-8">&copy; 2026 URABÁ-PAÍS · Región de Urabá</small>
+                <small class="text-muted fs-8 d-block">
+                    &copy; 2026 URABÁ-PAÍS &bull; Plataforma Social Protegida
+                </small>
+                <small class="text-muted fs-8" style="font-size: 0.7rem;">
+                    Conforme a la Ley Estatutaria 1581 de 2012 (Habeas Data)
+                </small>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassVisibility() {
+            const pass = document.getElementById('password');
+            const icon = document.getElementById('iconEye');
+            if (pass.type === 'password') {
+                pass.type = 'text';
+                icon.className = 'bi bi-eye-slash text-success';
+            } else {
+                pass.type = 'password';
+                icon.className = 'bi bi-eye text-muted';
+            }
+        }
+        function llenarLogin(correo, pass) {
+            document.getElementById('correo').value = correo;
+            document.getElementById('password').value = pass;
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URABÁ-PAÍS 2026 | Error {{ codigo }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #062e22 0%, #031c15 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            color: #f8fafc;
+        }
+        h1, h2, h3, .brand-font {
+            font-family: 'Outfit', sans-serif;
+        }
+        .error-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            max-width: 520px;
+            width: 100%;
+        }
+        .btn-emerald {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border: none;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-emerald:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="p-3">
+    <div class="card error-card p-4 p-sm-5 text-center shadow-lg">
+        <div class="mb-3">
+            <span class="badge font-monospace px-3 py-2 rounded-pill fs-6" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">
+                Código de Estado: {{ codigo }}
+            </span>
+        </div>
+        <div class="display-1 fw-bold text-white mb-2 brand-font">{{ codigo }}</div>
+        <h3 class="fw-bold text-white mb-2">{{ titulo }}</h3>
+        <p class="text-light text-opacity-75 fs-7 mb-4">{{ mensaje }}</p>
+
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            {% if session.get('usuario') %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-emerald px-4 py-2 rounded-3">
+                <i class="bi bi-grid-1x2-fill me-1"></i> Ir al Dashboard
+            </a>
+            {% else %}
+            <a href="{{ url_for('landing') }}" class="btn btn-emerald px-4 py-2 rounded-3">
+                <i class="bi bi-house-door-fill me-1"></i> Ir al Inicio
+            </a>
+            {% endif %}
+            <button onclick="window.history.back()" class="btn btn-outline-light px-3 py-2 rounded-3 border-opacity-25">
+                <i class="bi bi-arrow-left me-1"></i> Volver atrás
+            </button>
+        </div>
+
+        <div class="mt-4 pt-3 border-top border-white border-opacity-10">
+            <small class="text-muted fs-8">&copy; 2026 URABÁ-PAÍS · Sistema Seguro</small>
+        </div>
+    </div>
+</body>
+</html>

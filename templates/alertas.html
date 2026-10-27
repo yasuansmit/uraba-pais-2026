@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                <span class="pulse-indicator bg-danger me-1" style="background-color: #ef4444 !important;"></span> Sistema de Alertas Tempranas (SAT)
+            </span>
+            <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill fs-8">
+                Monitoreo Proactivo Regional
+            </span>
+        </div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Semáforo de Riesgo y Alertas Críticas</h3>
+        <p class="text-muted fs-7 mb-0">Detección oportuna de casos de alta vulnerabilidad sin atención, retrasos y desprotección</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary bg-white rounded-3 fs-7 shadow-sm">
+            <i class="bi bi-printer me-1"></i> Imprimir Informe
+        </button>
+        <a href="{{ url_for('alertas') }}" class="btn btn-outline-danger bg-white rounded-3 fs-7 shadow-sm">
+            <i class="bi bi-arrow-clockwise me-1"></i> Actualizar Alertas
+        </a>
+    </div>
+</div>
+
+<!-- KPIs del Semáforo de Riesgo -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);">
+                    <i class="bi bi-exclamation-octagon-fill fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Riesgo Crítico IVS</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ kpis['total_criticas'] }}</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #ef4444, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="bi bi-clock-history fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Seguim. Pendientes</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ kpis['total_seguimientos'] }}</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #f59e0b, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                    <i class="bi bi-person-x-fill fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Sin Programas</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ kpis['total_sin_cobertura'] }}</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #0284c7, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                    <i class="bi bi-shield-check fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Índice Urgencia</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ kpis['tasa_urgencia'] }}%</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #059669, transparent);"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Pestañas de Gestión de Alertas -->
+<ul class="nav nav-pills mb-4 gap-2 bg-white p-2 rounded-4 shadow-sm border" id="alertasTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-criticas-btn" data-bs-toggle="tab" data-bs-target="#tab-criticas" type="button" role="tab">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-1"></i> Casos Críticos Sin Atención 
+            <span class="badge bg-danger ms-1">{{ criticas|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-seguimientos-btn" data-bs-toggle="tab" data-bs-target="#tab-seguimientos" type="button" role="tab">
+            <i class="bi bi-journal-clock text-warning me-1"></i> Seguimientos Pendientes 
+            <span class="badge bg-warning text-dark ms-1">{{ seguimientos|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-3 px-3 py-2 fs-7 fw-semibold" id="tab-sincobertura-btn" data-bs-toggle="tab" data-bs-target="#tab-sincobertura" type="button" role="tab">
+            <i class="bi bi-shield-exclamation text-info me-1"></i> Desprotección Institucional 
+            <span class="badge bg-info text-dark ms-1">{{ sin_cobertura|length }}</span>
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="alertasTabsContent">
+    <!-- Tab 1: Alertas Críticas IVS -->
+    <div class="tab-pane fade show active" id="tab-criticas" role="tabpanel">
+        <div class="card border-0 bg-white p-4 rounded-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Beneficiarios en Vulnerabilidad Alta/Crítica Sin Atención Reciente</h5>
+                    <small class="text-muted fs-8">Personas con puntaje IVS &ge; 50 que llevan más de 30 días sin recibir atención o sin programas vinculados</small>
+                </div>
+            </div>
+
+            {% if criticas %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 fs-7">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Folio</th>
+                            <th>Beneficiario</th>
+                            <th>Municipio</th>
+                            <th>Puntaje IVS</th>
+                            <th>Días Sin Atención</th>
+                            <th>Programas</th>
+                            <th class="text-end pe-3">Acción Inmediata</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in criticas %}
+                        <tr>
+                            <td>
+                                <span class="badge font-monospace" style="background: rgba(239, 68, 68, 0.08); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2);">
+                                    {{ c['codigo'] }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong class="text-dark">{{ c['nombre'] }}</strong>
+                                <small class="text-muted d-block">Doc: {{ c['num_doc'] }} &bull; Tel: {{ c['telefono'] }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-secondary border rounded-pill">
+                                    <i class="bi bi-geo-alt me-1"></i>{{ c['municipio'] }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ c['ivs']['clase'] }}-subtle text-{{ c['ivs']['clase'] }} border px-2 py-1 rounded-pill fw-bold">
+                                    {{ c['ivs']['score'] }} pts &bull; {{ c['ivs']['nivel'] }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if c['dias_sin_atencion'] == 'Sin registro' %}
+                                <span class="badge bg-danger text-white rounded-pill px-2">Nunca atendido</span>
+                                {% else %}
+                                <span class="badge bg-danger-subtle text-danger border rounded-pill px-2">
+                                    <i class="bi bi-clock-history me-1"></i>{{ c['dias_sin_atencion'] }} días
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if c['programas'] == 0 %}
+                                <span class="badge bg-warning-subtle text-warning border rounded-pill">0 programas</span>
+                                {% else %}
+                                <span class="badge bg-light text-dark border rounded-pill">{{ c['programas'] }} vinculados</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-3 text-nowrap">
+                                <button type="button" class="btn btn-sm btn-primary rounded-3 fw-bold shadow-xs px-2.5 py-1.5" onclick="abrirModalAtencionRapida('{{ c['id'] }}', '{{ c['nombres'] }} {{ c['apellidos'] }}', '{{ c['codigo_interno'] }}', '{{ c['num_doc'] }}')" title="Registrar atención inmediata y resolver caso">
+                                    <i class="bi bi-heart-pulse-fill me-1"></i> Atender Caso
+                                </button>
+                                <a href="{{ url_for('ficha_beneficiario', id=c['id'], atender='1') }}" class="btn btn-sm btn-outline-secondary rounded-3 p-1.5" title="Ver ficha integral 360°">
+                                    <i class="bi bi-person-vcard"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
+                <h6 class="fw-bold text-dark">No hay casos críticos desatendidos</h6>
+                <p class="mb-0 fs-8">Todos los beneficiarios en condición de alta vulnerabilidad cuentan con seguimiento y atención reciente.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tab 2: Seguimientos Pendientes -->
+    <div class="tab-pane fade" id="tab-seguimientos" role="tabpanel">
+        <div class="card border-0 bg-white p-4 rounded-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Compromisos de Seguimiento Pendientes</h5>
+                    <small class="text-muted fs-8">Visitas domiciliarias, valoraciones y contactos programados que requieren gestión</small>
+                </div>
+                <a href="{{ url_for('seguimientos') }}" class="btn btn-sm btn-primary rounded-3">
+                    <i class="bi bi-kanban me-1"></i> Ver en Tablero Kanban
+                </a>
+            </div>
+
+            {% if seguimientos %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 fs-7">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Folio</th>
+                            <th>Beneficiario</th>
+                            <th>Municipio</th>
+                            <th>Avance Registrado</th>
+                            <th>Próxima Acción / Contacto</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-3">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in seguimientos %}
+                        <tr>
+                            <td>
+                                <span class="badge font-monospace bg-light text-dark border">
+                                    {{ s['codigo_interno'] }}
+                                </span>
+                            </td>
+                            <td>
+                                <strong class="text-dark">{{ s['beneficiario_nombre'] }}</strong>
+                                <small class="text-muted d-block">Doc: {{ s['num_doc'] }}</small>
+                            </td>
+                            <td>{{ s['municipio'] or 'Urabá' }}</td>
+                            <td class="text-muted" style="max-width: 250px;">{{ s['avance'] }}</td>
+                            <td>
+                                <strong class="text-dark">{{ s['proxima_accion'] }}</strong>
+                                <small class="text-danger d-block"><i class="bi bi-calendar-event me-1"></i>{{ s['fecha_proximo_contacto'] or 'Sin fecha programada' }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning-subtle text-warning border px-2 py-1 rounded-pill">
+                                    {{ s['estado_accion'] }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a href="{{ url_for('seguimientos', q=s['codigo_interno']) }}" class="btn btn-sm btn-outline-warning rounded-3">
+                                    <i class="bi bi-pencil me-1"></i> Gestionar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-check2-all text-success fs-1 d-block mb-2"></i>
+                <p class="mb-0">No hay seguimientos pendientes en este momento.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tab 3: Sin Cobertura de Programas -->
+    <div class="tab-pane fade" id="tab-sincobertura" role="tabpanel">
+        <div class="card border-0 bg-white p-4 rounded-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Ciudadanos Censados Sin Programa Social Vinculado</h5>
+                    <small class="text-muted fs-8">Personas registradas en la base de datos oficial que aún no reciben ningún beneficio o subsidio</small>
+                </div>
+            </div>
+
+            {% if sin_cobertura %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 fs-7">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Folio</th>
+                            <th>Ciudadano</th>
+                            <th>Municipio</th>
+                            <th>Teléfono</th>
+                            <th>Puntaje IVS</th>
+                            <th class="text-end pe-3">Vinculación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sc in sin_cobertura %}
+                        <tr>
+                            <td>
+                                <span class="badge font-monospace bg-light text-dark border">{{ sc['codigo'] }}</span>
+                            </td>
+                            <td>
+                                <strong class="text-dark">{{ sc['nombre'] }}</strong>
+                                <small class="text-muted d-block">Doc: {{ sc['num_doc'] }}</small>
+                            </td>
+                            <td>{{ sc['municipio'] }}</td>
+                            <td>{{ sc['telefono'] }}</td>
+                            <td>
+                                <span class="badge bg-{{ sc['ivs']['clase'] }}-subtle text-{{ sc['ivs']['clase'] }} border px-2 py-1 rounded-pill">
+                                    {{ sc['ivs']['score'] }} pts &bull; {{ sc['ivs']['nivel'] }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a href="{{ url_for('ficha_beneficiario', id=sc['id']) }}" class="btn btn-sm btn-success rounded-3">
+                                    <i class="bi bi-plus-circle me-1"></i> Asignar Programa
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-shield-check text-success fs-1 d-block mb-2"></i>
+                <p class="mb-0">Todos los ciudadanos registrados cuentan con al menos un programa social vinculado.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Atención Inmediata en Alertas -->
+<div class="modal fade" id="modalAtencionRapidaAlertas" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form id="formAtencionRapida" method="POST" action="" class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <input type="hidden" name="redirect_to" value="alertas">
+            <div class="modal-header border-0 bg-primary text-white p-3 px-4">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center p-2" style="width: 38px; height: 38px;">
+                        <i class="bi bi-heart-pulse-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0 fs-6">Atención Prioritaria Inmediata</h5>
+                        <small class="text-white-50 fs-8" id="subtituloModalAtencion">Subsanar alerta crítica del beneficiario</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <!-- Tarjeta resumen del caso -->
+                <div class="p-3 rounded-3 bg-white border mb-3 shadow-xs">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill fs-9 mb-1">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> Caso Crítico Prioritario
+                            </span>
+                            <h6 class="fw-bold text-dark mb-0 fs-7" id="nombreBeneficiarioModal">Cargando...</h6>
+                            <small class="text-muted fs-8">Documento: <strong id="docBeneficiarioModal">-</strong> &bull; Folio: <span class="font-monospace" id="codigoBeneficiarioModal">-</span></small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fs-8 fw-semibold text-dark">Tipo de Atención / Ayuda Social <span class="text-danger">*</span></label>
+                        <select name="tipo" class="form-select rounded-3 fs-7" required>
+                            <option value="Atención Psicosocial y Contención">Atención Psicosocial y Contención Humanitaria</option>
+                            <option value="Entrega de Subsidio / Kit Alimentario">Entrega de Subsidio / Kit de Emergencia Alimentaria</option>
+                            <option value="Asesoría Jurídica y Restitución">Asesoría Jurídica en Derechos / Ley de Víctimas</option>
+                            <option value="Atención en Salud Prioritaria">Remisión y Atención Médica Prioritaria</option>
+                            <option value="Vinculación a Programa Productivo">Vinculación Inmediata a Programa Productivo Regional</option>
+                            <option value="Acompañamiento a Hogar Monoparental">Acompañamiento a Cuidador / Jefatura Monoparental</option>
+                        </select>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="form-label fs-8 fw-semibold text-dark">Fecha de la Atención <span class="text-danger">*</span></label>
+                        <input type="date" name="fecha" id="fechaAtencionInput" class="form-control rounded-3 fs-7" required>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="form-label fs-8 fw-semibold text-dark">Funcionario Responsable <span class="text-danger">*</span></label>
+                        <input type="text" name="responsable" class="form-control rounded-3 fs-7" value="{{ session.get('usuario', 'Funcionario de Gestión Social') }}" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fs-8 fw-semibold text-dark">Descripción y Dictamen del Servicio Prestado <span class="text-danger">*</span></label>
+                        <textarea name="descripcion" rows="3" class="form-control rounded-3 fs-7" placeholder="Detalle la intervención realizada con el beneficiario para subsanar la situación de riesgo..." required></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fs-8 fw-semibold text-dark">Resultado / Estado de Cierre</label>
+                        <select name="resultado" class="form-select rounded-3 fs-7">
+                            <option value="Caso Atendido y Subsanado con Éxito">Caso Atendido y Subsanado con Éxito (Alerta Resuelta)</option>
+                            <option value="En Proceso de Seguimiento Continuo">En Proceso de Seguimiento Continuo</option>
+                            <option value="Remitido a Entidad Competente">Remitido a Entidad Competente (ICBF / Defensoría)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-white p-3 px-4 d-flex justify-content-between">
+                <button type="button" class="btn btn-light rounded-3 fs-7" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary rounded-3 fs-7 fw-bold shadow-sm px-4">
+                    <i class="bi bi-check2-circle me-1"></i> Guardar y Desactivar Alerta
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function abrirModalAtencionRapida(id, nombre, codigo, doc) {
+    const form = document.getElementById('formAtencionRapida');
+    if (form) {
+        form.action = '/beneficiarios/' + id + '/atencion?redirect_to=alertas';
+    }
+    document.getElementById('nombreBeneficiarioModal').textContent = nombre;
+    document.getElementById('docBeneficiarioModal').textContent = doc;
+    document.getElementById('codigoBeneficiarioModal').textContent = codigo;
+    
+    // Poner fecha de hoy por defecto
+    const fechaInput = document.getElementById('fechaAtencionInput');
+    if (fechaInput && !fechaInput.value) {
+        fechaInput.value = new Date().toISOString().split('T')[0];
+    }
+    
+    const modalEl = document.getElementById('modalAtencionRapidaAlertas');
+    if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+}
+</script>
+
+{% endblock %}

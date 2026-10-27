@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                <i class="bi bi-shield-lock-fill me-1"></i> Módulo Forense y Cumplimiento Normativo
+            </span>
+            <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill fs-8">
+                Ley 1581 de 2012 (Habeas Data)
+            </span>
+        </div>
+        <h3 class="fw-bold text-dark mb-0" style="letter-spacing: -0.02em;">Bitácora de Auditoría y Trazabilidad</h3>
+        <p class="text-muted fs-7 mb-0">Registro inalterable de operaciones, accesos y eventos de seguridad del sistema</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-secondary bg-white rounded-3 fs-7 shadow-sm">
+            <i class="bi bi-printer me-1"></i> Imprimir Registro
+        </button>
+        <a href="{{ url_for('auditoria') }}" class="btn btn-outline-primary bg-white rounded-3 fs-7 shadow-sm" title="Refrescar">
+            <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+        </a>
+    </div>
+</div>
+
+<!-- Tarjetas de Métricas de Auditoría -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                    <i class="bi bi-journal-text fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Total Eventos</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_eventos }}</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #10b981, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                    <i class="bi bi-shield-check fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Control Seguridad</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_seguridad }}</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #0284c7, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%);">
+                    <i class="bi bi-hdd-network fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">IPs Identificadas</span>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_ips }}</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #d97706, transparent);"></div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 p-3 bg-white h-100 position-relative overflow-hidden shadow-sm rounded-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center rounded-3 text-white shadow-sm" style="width: 48px; height: 48px; background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);">
+                    <i class="bi bi-patch-check-fill fs-4"></i>
+                </div>
+                <div>
+                    <span class="text-muted fs-8 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Integridad</span>
+                    <h3 class="fw-bold mb-0 text-dark">100%</h3>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 w-100" style="height: 3px; background: linear-gradient(90deg, #4f46e5, transparent);"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros de Auditoría -->
+<div class="card border-0 p-3 mb-4 bg-white shadow-sm rounded-4">
+    <form method="GET" action="{{ url_for('auditoria') }}" class="row g-2 align-items-center">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-0 rounded-start-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" name="q" value="{{ q }}" class="form-control bg-light border-0 rounded-end-3 fs-7" placeholder="Buscar por usuario, acción, detalle o IP...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select name="nivel" class="form-select bg-light border-0 rounded-3 fs-7" onchange="this.form.submit()">
+                <option value="">-- Todos los niveles --</option>
+                <option value="INFO" {% if nivel_filtro == 'INFO' %}selected{% endif %}>INFO (Operación estándar)</option>
+                <option value="SEGURIDAD" {% if nivel_filtro == 'SEGURIDAD' %}selected{% endif %}>SEGURIDAD (Acceso / Exportación)</option>
+                <option value="WARNING" {% if nivel_filtro == 'WARNING' %}selected{% endif %}>WARNING (Alerta de acceso)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="accion" class="form-select bg-light border-0 rounded-3 fs-7" onchange="this.form.submit()">
+                <option value="">-- Acción --</option>
+                <option value="INICIO_SESION" {% if accion_filtro == 'INICIO_SESION' %}selected{% endif %}>Inicio de Sesión</option>
+                <option value="REGISTRO_BENEFICIARIO" {% if accion_filtro == 'REGISTRO_BENEFICIARIO' %}selected{% endif %}>Registro Beneficiario</option>
+                <option value="EXPORTACION_DATOS" {% if accion_filtro == 'EXPORTACION_DATOS' %}selected{% endif %}>Exportación Datos</option>
+                <option value="EMISION_CERTIFICADO" {% if accion_filtro == 'EMISION_CERTIFICADO' %}selected{% endif %}>Emisión Certificado</option>
+                <option value="VERIFICACION_QR" {% if accion_filtro == 'VERIFICACION_QR' %}selected{% endif %}>Verificación QR</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+            <button type="submit" class="btn btn-primary w-100 rounded-3 fw-semibold fs-7">
+                <i class="bi bi-funnel-fill me-1"></i> Filtrar
+            </button>
+            {% if q or nivel_filtro or accion_filtro %}
+            <a href="{{ url_for('auditoria') }}" class="btn btn-outline-danger rounded-3" title="Limpiar"><i class="bi bi-x-lg"></i></a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Tabla de Registros de Auditoría -->
+<div class="card border-0 bg-white overflow-hidden shadow-sm rounded-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Fecha y Hora</th>
+                    <th>Nivel</th>
+                    <th>Acción</th>
+                    <th>Detalle del Evento</th>
+                    <th>Usuario</th>
+                    <th class="text-end pe-4">Dirección IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in registros %}
+                <tr>
+                    <td class="ps-4 font-monospace fs-8 text-muted" style="white-space: nowrap;">
+                        <i class="bi bi-clock me-1 text-success"></i>
+                        {{ r['fecha_hora'] }}
+                    </td>
+                    <td>
+                        {% if r['nivel'] == 'SEGURIDAD' %}
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                            <i class="bi bi-shield-lock me-1"></i> SEGURIDAD
+                        </span>
+                        {% elif r['nivel'] == 'WARNING' %}
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                            <i class="bi bi-exclamation-triangle me-1"></i> ALERTA
+                        </span>
+                        {% else %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-pill fs-8 fw-semibold">
+                            <i class="bi bi-info-circle me-1"></i> INFO
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border font-monospace px-2 py-1 rounded-2 fs-8">
+                            {{ r['accion'] }}
+                        </span>
+                    </td>
+                    <td class="fs-7 text-dark fw-medium" style="max-width: 380px;">
+                        {{ r['detalle'] }}
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-secondary border px-2 py-1 rounded-pill fs-8">
+                            <i class="bi bi-person-fill me-1"></i>{{ r['usuario'] }}
+                        </span>
+                    </td>
+                    <td class="text-end pe-4 font-monospace fs-8 text-muted">
+                        <span class="badge bg-light text-muted border px-2 py-1 rounded-2">
+                            {{ r['ip_origen'] }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        No hay eventos de auditoría registrados con los criterios seleccionados.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if total_paginas > 1 %}
+    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light flex-wrap gap-2">
+        <span class="text-muted fs-7">Mostrando página {{ pagina }} de {{ total_paginas }} (Total: {{ total }} eventos)</span>
+        <nav aria-label="Paginación de auditoría">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+                    <a class="page-link rounded-start-3" href="{{ url_for('auditoria', pagina=pagina-1, q=q, nivel=nivel_filtro, accion=accion_filtro) }}">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                    </a>
+                </li>
+                {% for p in range(1, total_paginas + 1) %}
+                    {% if p == pagina %}
+                        <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                    {% elif p >= pagina - 2 and p <= pagina + 2 %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('auditoria', pagina=p, q=q, nivel=nivel_filtro, accion=accion_filtro) }}">{{ p }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+                    <a class="page-link rounded-end-3" href="{{ url_for('auditoria', pagina=pagina+1, q=q, nivel=nivel_filtro, accion=accion_filtro) }}">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Banner Informativo Legal Habeas Data -->
+<div class="card border-0 bg-white p-4 rounded-4 mt-4 shadow-sm border-start border-4 border-success">
+    <div class="d-flex align-items-start gap-3">
+        <i class="bi bi-shield-shaded fs-2 text-success mt-1"></i>
+        <div>
+            <h6 class="fw-bold text-dark mb-1">Garantía de Integridad y Cumplimiento Normativo (Habeas Data)</h6>
+            <p class="text-muted fs-8 mb-0" style="line-height: 1.6;">
+                En concordancia con el artículo 15 de la Constitución Política de Colombia y la <strong>Ley Estatutaria 1581 de 2012</strong>, todos los accesos a datos personales, descargas y modificaciones en la plataforma URABÁ-PAÍS son auditados criptográficamente. Este registro cuenta con validez legal ante requerimientos de entes de control como la Procuraduría General de la Nación y la Superintendencia de Industria y Comercio (SIC).
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
